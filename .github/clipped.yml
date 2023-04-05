@@ -1,10 +1,5 @@
 name: Clipped
 
-on:
-  push:
-    branches:
-    - master
-    - testing
 jobs:
   library:
     #    if: github.event.comment.body == 'test core'
