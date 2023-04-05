@@ -1,5 +1,11 @@
 name: Clipped
-
+on:
+  push:
+    branches:
+      - main
+      - test
+  pull_request:
+    types: [opened, synchronize]
 jobs:
   library:
     #    if: github.event.comment.body == 'test core'
