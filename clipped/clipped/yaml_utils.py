@@ -1,6 +1,6 @@
-from typing import TextIO, Union
-
 import yaml
+
+from typing import TextIO, Union
 
 try:
     from yaml import CSafeDumper as _SafeDumper

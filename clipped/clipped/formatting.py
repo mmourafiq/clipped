@@ -1,12 +1,11 @@
 import json
 import sys
+import yaml
+
 from typing import Optional
 
 import click
-import yaml
-from clipped.humanize import humanize_attrs
-from clipped.list_utils import to_list
-from clipped.units_processors import to_percentage, to_unit_memory
+
 from rich import box
 from rich.console import Console
 from rich.live import Live
@@ -24,6 +23,10 @@ from rich.progress import (
 from rich.syntax import Syntax
 from rich.table import Column, Table
 from rich.theme import Theme
+
+from clipped.humanize import humanize_attrs
+from clipped.list_utils import to_list
+from clipped.units_processors import to_percentage, to_unit_memory
 
 
 def dict_tabulate(dict_value, is_list_dict=False):

@@ -1,7 +1,8 @@
+import pytz
+
 from datetime import datetime, timedelta
 from typing import Optional
 
-import pytz
 from dateutil.tz import tzlocal
 
 try:

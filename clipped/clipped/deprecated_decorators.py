@@ -1,5 +1,6 @@
 import functools
 import warnings
+
 from typing import Optional, Tuple
 
 from clipped.versions import compare_versions

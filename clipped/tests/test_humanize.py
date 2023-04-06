@@ -1,7 +1,8 @@
 import datetime
+import pytest
+
 from unittest import TestCase
 
-import pytest
 from clipped.humanize import humanize_timedelta, humanize_timesince
 from clipped.tz_utils import now
 

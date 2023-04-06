@@ -1,6 +1,7 @@
 import os
 import tarfile
 import tempfile
+
 from unittest import TestCase
 
 from clipped.path_utils import (
