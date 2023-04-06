@@ -5,6 +5,8 @@ import platform
 import socket
 import sys
 
+from typing import List
+
 _logger = logging.getLogger("clipped.env")
 
 
@@ -38,7 +40,7 @@ def get_user():
         return "unknown"
 
 
-def get_run_env(package: str = "polyaxon"):
+def get_run_env(packages: List[str]):
     import pkg_resources
 
     def get_packages():
@@ -51,11 +53,7 @@ def get_run_env(package: str = "polyaxon"):
             _logger.debug("Could not detect installed packages, %s", e)
             return []
 
-    try:
-        version = pkg_resources.get_distribution(package).version
-    except pkg_resources.DistributionNotFound:
-        version = ""
-    return {
+    data = {
         "pid": os.getpid(),
         "hostname": socket.gethostname(),
         "os": platform.platform(aliased=True),
@@ -63,10 +61,17 @@ def get_run_env(package: str = "polyaxon"):
         "python_version_verbose": sys.version,
         "python_version": platform.python_version(),
         "user": get_user(),
-        "client_version": version,
         "sys.argv": sys.argv,
         "is_notebook": is_notebook(),
         "filename": get_filename(),
         "module_path": get_module_path(),
         "packages": get_packages(),
     }
+
+    for package in packages:
+        try:
+            data[f"{package}_version"] = pkg_resources.get_distribution(package).version
+        except pkg_resources.DistributionNotFound:
+            data[f"{package}_version"] = ""
+
+    return data

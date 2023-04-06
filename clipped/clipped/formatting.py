@@ -2,7 +2,7 @@ import json
 import sys
 import yaml
 
-from typing import Optional, Dict, List, Union
+from typing import Dict, List, Optional, Union
 
 import click
 
@@ -26,7 +26,7 @@ from rich.theme import Theme
 
 from clipped.humanize import humanize_attrs
 from clipped.list_utils import to_list
-from clipped.units_processors import to_percentage, to_unit_memory
+from clipped.units_processors import to_unit_memory
 
 
 class Printer:
@@ -98,40 +98,44 @@ class Printer:
         cls.console.print(syntax)
 
     @classmethod
-    def print(cls, text):
+    def print(cls, text: str):
         cls.console.print(text)
 
     @classmethod
     def help(cls, command_help: Optional[str] = None):
         if command_help:
             cls.console.print(
-                "Please run [white]`polyaxon {} --help`[/white] for more details".format(
+                "Please run [white]`{} --help`[/white] for more details".format(
                     command_help
                 ),
                 style="info",
             )
 
     @classmethod
-    def heading(cls, text):
+    def heading(cls, text: str):
         cls.header("\n{}\n".format(text))
 
     @classmethod
-    def header(cls, text):
+    def header(cls, text: str):
         cls.console.print(text, style="header")
 
     @classmethod
-    def warning(cls, text, command_help: Optional[str] = None):
+    def warning(cls, text: str, command_help: Optional[str] = None):
         cls.console.print(text, style="warning")
         if command_help:
-            cls.help(command_help)
+            cls.help(command_help=command_help)
 
     @classmethod
-    def success(cls, text):
+    def success(cls, text: str):
         cls.console.print(text, style="success")
 
     @classmethod
     def error(
-        cls, text, sys_exit: bool = False, command_help: Optional[str] = None, **kwargs
+        cls,
+        text: str,
+        sys_exit: bool = False,
+        command_help: Optional[str] = None,
+        **kwargs
     ):
         cls.console.print(text, style="error")
         if command_help:
@@ -140,11 +144,11 @@ class Printer:
             sys.exit(1)
 
     @classmethod
-    def tip(cls, text):
+    def tip(cls, text: str):
         cls.console.print(text, style="white")
 
     @classmethod
-    def info(cls, text):
+    def info(cls, text: str):
         cls.console.print(text, style="info")
 
     @staticmethod
@@ -184,7 +188,9 @@ class Printer:
         return obj_dict
 
     @classmethod
-    def decorate_format_value(cls, text_format: str, values: Union[List[str], str], color: str):
+    def decorate_format_value(
+        cls, text_format: str, values: Union[List[str], str], color: str
+    ):
         values = to_list(values)
         values = [cls.add_color(value, color) for value in values]
         click.echo(text_format.format(*values))
@@ -206,73 +212,3 @@ class Printer:
             for k, v in dict_value.items():
                 table.add_row(k, humanize_attrs(k, v))
             cls.print(table)
-
-    @classmethod
-    def resources(cls, jobs_resources):
-        # TODO: move resources and other common configs to clippy
-        from polyaxon.schemas.api.resources import ContainerResourcesConfig
-
-        jobs_resources = to_list(jobs_resources)
-        click.clear()
-        table = cls.get_table("Job", "Mem Usage / Total", "CPU% - CPUs")
-        for job_resources in jobs_resources:
-            job_resources = ContainerResourcesConfig.from_dict(job_resources)
-            line = [
-                job_resources.job_name,
-                "{} / {}".format(
-                    to_unit_memory(job_resources.memory_used),
-                    to_unit_memory(job_resources.memory_limit),
-                ),
-                "{} - {}".format(
-                    to_percentage(job_resources.cpu_percentage / 100),
-                    job_resources.n_cpus,
-                ),
-            ]
-            table.add_row(*line)
-        cls.print(table)
-        sys.stdout.flush()
-
-    @classmethod
-    def gpu_resources(cls, jobs_resources):
-        # TODO: move resources and other common configs to clippy
-        from polyaxon.schemas.api.resources import ContainerResourcesConfig
-
-        jobs_resources = to_list(jobs_resources)
-        click.clear()
-        table = cls.get_table(
-            "job_name",
-            "name",
-            "GPU Usage",
-            "GPU Mem Usage / Total",
-            "GPU Temperature",
-            "Power Draw / Limit",
-        )
-        non_gpu_jobs = 0
-        for job_resources in jobs_resources:
-            job_resources = ContainerResourcesConfig.from_dict(job_resources)
-            line = []
-            if not job_resources.gpu_resources:
-                non_gpu_jobs += 1
-                continue
-            for gpu_resources in job_resources.gpu_resources:
-                line += [
-                    job_resources.job_name,
-                    gpu_resources.name,
-                    to_percentage(gpu_resources.utilization_gpu / 100),
-                    "{} / {}".format(
-                        to_unit_memory(gpu_resources.memory_used),
-                        to_unit_memory(gpu_resources.memory_total),
-                    ),
-                    gpu_resources.temperature_gpu,
-                    "{} / {}".format(
-                        gpu_resources.power_draw, gpu_resources.power_limit
-                    ),
-                ]
-            table.add_row(*line)
-        if non_gpu_jobs == len(jobs_resources):
-            cls.error(
-                "No GPU job was found, please run `resources` command without `-g | --gpu` option."
-            )
-            exit(1)
-        cls.print(table)
-        sys.stdout.flush()
