@@ -2,7 +2,7 @@ import json
 import sys
 import yaml
 
-from typing import Optional
+from typing import Optional, Dict, List, Union
 
 import click
 
@@ -27,20 +27,6 @@ from rich.theme import Theme
 from clipped.humanize import humanize_attrs
 from clipped.list_utils import to_list
 from clipped.units_processors import to_percentage, to_unit_memory
-
-
-def dict_tabulate(dict_value, is_list_dict=False):
-    if is_list_dict:
-        headers = dict_value[0].keys() if dict_value else []
-        table = Printer.get_table(*headers)
-        for d in dict_value:
-            table.add_row(*d.values())
-        Printer.print(table)
-    else:
-        table = Printer.get_table(show_header=False, padding=0, box=box.SIMPLE)
-        for k, v in dict_value.items():
-            table.add_row(k, humanize_attrs(k, v))
-        Printer.print(table)
 
 
 class Printer:
@@ -198,7 +184,7 @@ class Printer:
         return obj_dict
 
     @classmethod
-    def decorate_format_value(cls, text_format, values, color):
+    def decorate_format_value(cls, text_format: str, values: Union[List[str], str], color: str):
         values = to_list(values)
         values = [cls.add_color(value, color) for value in values]
         click.echo(text_format.format(*values))
@@ -208,13 +194,27 @@ class Printer:
         click.echo(value, nl=nl)
 
     @classmethod
+    def dict_tabulate(cls, dict_value: Dict, is_list_dict: bool = False):
+        if is_list_dict:
+            headers = dict_value[0].keys() if dict_value else []
+            table = cls.get_table(*headers)
+            for d in dict_value:
+                table.add_row(*d.values())
+            cls.print(table)
+        else:
+            table = cls.get_table(show_header=False, padding=0, box=box.SIMPLE)
+            for k, v in dict_value.items():
+                table.add_row(k, humanize_attrs(k, v))
+            cls.print(table)
+
+    @classmethod
     def resources(cls, jobs_resources):
         # TODO: move resources and other common configs to clippy
         from polyaxon.schemas.api.resources import ContainerResourcesConfig
 
         jobs_resources = to_list(jobs_resources)
         click.clear()
-        table = Printer.get_table("Job", "Mem Usage / Total", "CPU% - CPUs")
+        table = cls.get_table("Job", "Mem Usage / Total", "CPU% - CPUs")
         for job_resources in jobs_resources:
             job_resources = ContainerResourcesConfig.from_dict(job_resources)
             line = [
@@ -229,7 +229,7 @@ class Printer:
                 ),
             ]
             table.add_row(*line)
-        Printer.print(table)
+        cls.print(table)
         sys.stdout.flush()
 
     @classmethod
@@ -239,7 +239,7 @@ class Printer:
 
         jobs_resources = to_list(jobs_resources)
         click.clear()
-        table = Printer.get_table(
+        table = cls.get_table(
             "job_name",
             "name",
             "GPU Usage",
@@ -270,9 +270,9 @@ class Printer:
                 ]
             table.add_row(*line)
         if non_gpu_jobs == len(jobs_resources):
-            Printer.error(
+            cls.error(
                 "No GPU job was found, please run `resources` command without `-g | --gpu` option."
             )
             exit(1)
-        Printer.print(table)
+        cls.print(table)
         sys.stdout.flush()
