@@ -1,9 +1,8 @@
 from datetime import datetime
 from typing import Any, Union
 
-import ujson
-
 from clipped.date_utils import DateTimeFormatter, parse_datetime
+from clipped.json_utils import orjson_dumps
 from clipped.tz_utils import now
 from clipped.units_processors import to_percentage, to_unit_memory
 
@@ -96,7 +95,9 @@ def humanize_timedelta(seconds: int) -> str:
     return "{}s".format(seconds)
 
 
-def humanize_attrs(key: str, value: Any, rounding: int = 2, timesince: bool = True):
+def humanize_attrs(
+    key: str, value: Any, rounding: int = 2, timesince: bool = True
+) -> str:
     if key in [
         "created_at",
         "updated_at",
@@ -117,4 +118,4 @@ def humanize_attrs(key: str, value: Any, rounding: int = 2, timesince: bool = Tr
         return value
     if value is None:
         return ""
-    return ujson.dumps(value)
+    return orjson_dumps(value)
