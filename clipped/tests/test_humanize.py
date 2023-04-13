@@ -3,8 +3,8 @@ import pytest
 
 from unittest import TestCase
 
-from clipped.humanize import humanize_timedelta, humanize_timesince
-from clipped.tz_utils import now
+from clipped.utils.humanize import humanize_timedelta, humanize_timesince
+from clipped.utils.tz import now
 
 
 class HumanizeTimesinceTest(TestCase):

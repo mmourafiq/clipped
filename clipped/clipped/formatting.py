@@ -24,9 +24,9 @@ from rich.syntax import Syntax
 from rich.table import Column, Table
 from rich.theme import Theme
 
-from clipped.humanize import humanize_attrs
-from clipped.list_utils import to_list
-from clipped.units_processors import to_unit_memory
+from clipped.utils.humanize import humanize_attrs
+from clipped.utils.lists import to_list
+from clipped.utils.units import to_unit_memory
 
 
 class Printer:

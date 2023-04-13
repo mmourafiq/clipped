@@ -2,7 +2,7 @@ import os
 
 from typing import Dict, List, Optional
 
-from clipped.cmd import run_command
+from clipped.utils.cmd import run_command
 
 
 def git_init(repo_path: str):

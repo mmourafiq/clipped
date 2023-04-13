@@ -3,7 +3,7 @@ import warnings
 
 from typing import Optional, Tuple
 
-from clipped.versions import compare_versions
+from clipped.utils.versions import compare_versions
 
 
 class DeprecatedWarning(DeprecationWarning):

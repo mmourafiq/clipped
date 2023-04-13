@@ -7,7 +7,7 @@ import sys
 
 from typing import List
 
-_logger = logging.getLogger("clipped.env")
+_logger = logging.getLogger("clipped.utils.env")
 
 
 def is_notebook():

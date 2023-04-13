@@ -16,11 +16,7 @@
 
 from unittest import TestCase
 
-from clipped.units_processors import (
-    format_sizeof,
-    number_percentage_format,
-    to_percentage,
-)
+from clipped.utils.units import format_sizeof, number_percentage_format, to_percentage
 
 
 class ToPercentageTest(TestCase):

@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from clipped.enums_utils import (
+from clipped.utils.enums import (
     PEnum,
     enum_to_choices,
     enum_to_list,

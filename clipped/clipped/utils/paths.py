@@ -7,9 +7,9 @@ import tempfile
 from contextlib import contextmanager
 from typing import Any, List, Optional, Pattern, Tuple, Union
 
-from clipped.list_utils import to_list
+from clipped.utils.lists import to_list
 
-_logger = logging.getLogger("clipped.path_utils")
+_logger = logging.getLogger("clipped.utils.paths")
 
 
 def check_or_create_path(path: Optional[str] = None, is_dir: bool = False):

@@ -1,7 +1,7 @@
 from datetime import datetime
 from unittest import TestCase
 
-from clipped.date_utils import DateTimeFormatter, DateTimeFormatterException
+from clipped.utils.dates import DateTimeFormatter, DateTimeFormatterException
 
 
 class TestDateTimeFormatter(TestCase):

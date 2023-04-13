@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from clipped.string_utils import is_protected_type, slugify
+from clipped.utils.strings import is_protected_type, slugify
 
 
 class TestUtils(TestCase):

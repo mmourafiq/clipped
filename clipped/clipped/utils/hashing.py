@@ -1,7 +1,7 @@
 from typing import Any, List, Optional, Union
 
-from clipped.list_utils import to_list
-from clipped.path_utils import get_files_in_path
+from clipped.utils.lists import to_list
+from clipped.utils.paths import get_files_in_path
 
 
 def hash_value(value: Any, hash_length: Optional[int] = 12) -> str:

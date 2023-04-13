@@ -4,7 +4,7 @@ import tempfile
 
 from unittest import TestCase
 
-from clipped.path_utils import (
+from clipped.utils.paths import (
     append_basename,
     create_tarfile_from_path,
     get_files_by_paths,

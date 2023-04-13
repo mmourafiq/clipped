@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from clipped.memoize_decorators import memoize, memoize_method
+from clipped.decorators.memoization import memoize, memoize_method
 
 
 class MemoizeTest(TestCase):

@@ -1,6 +1,6 @@
 from typing import List, Optional, Union
 
-from clipped.list_utils import to_list
+from clipped.utils.lists import to_list
 
 
 def validate_tags(

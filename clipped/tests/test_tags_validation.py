@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from clipped.validation import validate_tags
+from clipped.utils.validation import validate_tags
 
 
 class TestTagsValidation(TestCase):
