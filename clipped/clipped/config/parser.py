@@ -1,6 +1,6 @@
 import logging
 
-from typing import Any, Callable, List, Optional, Protocol, Type, TypeVar
+from typing import Any, Callable, List, Optional, Type, TypeVar, TYPE_CHECKING
 
 import orjson
 
@@ -11,6 +11,9 @@ from pydantic.tools import NameFactory, _get_parsing_type
 from clipped.config.constants import NO_VALUE_FOUND
 from clipped.config.exceptions import SchemaError
 from clipped.decorators.memoization import memoize, memoize_method
+
+if TYPE_CHECKING:
+    from pydantic.parse import Protocol
 
 _logger = logging.getLogger("clipped.parser")
 
