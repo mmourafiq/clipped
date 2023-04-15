@@ -2,8 +2,11 @@ import datetime
 import re
 import unicodedata
 
+from collections.abc import Mapping
 from decimal import Decimal
 from typing import Any, Callable
+
+from clipped.utils.json import orjson_dumps
 
 
 def strip_spaces(value: str, sep=None, join=True):
@@ -83,3 +86,13 @@ def to_snake_case(camel_str: str):
     regex1 = re.compile(r"([A-Z]+)([A-Z][a-z])")
     regex2 = re.compile(r"([a-z\d])([A-Z])")
     return regex2.sub(r"\1_\2", regex1.sub(r"\1_\2", camel_str)).lower()
+
+
+def to_string(v: Any):
+    base_types = (int, float, Mapping, list, tuple, set)
+    if isinstance(v, base_types):
+        return orjson_dumps(v)
+    # Important to keep null to evaluate empty values
+    if v is None:
+        return v
+    return str(v)
