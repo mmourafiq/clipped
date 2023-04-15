@@ -90,7 +90,3 @@ class WasbPath(AnyUrl):
         if structured.get("path"):
             return f"{structured['container']}/{structured['path']}"
         return structured["container"]
-
-
-# Backwards compatibility
-V1WasbType = WasbPath

@@ -34,7 +34,3 @@ class S3Path(AnyUrl):
     @property
     def structured(self):
         return dict(bucket=self.host, key=self.path.strip("/"))
-
-
-# Backwards compatibility
-V1S3Type = S3Path

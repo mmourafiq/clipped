@@ -34,7 +34,3 @@ class GcsPath(AnyUrl):
     @property
     def structured(self):
         return dict(bucket=self.host, blob=self.path.strip("/"))
-
-
-# Backwards compatibility
-V1GcsType = GcsPath
