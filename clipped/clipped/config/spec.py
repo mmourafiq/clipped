@@ -1,4 +1,3 @@
-import json
 import os
 import sys
 import yaml
@@ -11,6 +10,7 @@ from yaml.scanner import ScannerError
 
 from clipped.config.exceptions import SchemaError
 from clipped.utils.dicts import deep_update
+from clipped.utils.json import orjson_loads
 from clipped.utils.lists import to_list
 
 
@@ -239,12 +239,12 @@ class ConfigSpec:
     def read_from_json(cls, f_path, is_stream=False):
         if is_stream:
             try:
-                return json.loads(f_path)
+                return orjson_loads(f_path)
             except ValueError as e:
                 raise cls._SCHEMA_EXCEPTION("Json error: %s" % e) from e
         try:
             with open(f_path) as f:
-                return json.loads(f.read())
+                return orjson_loads(f.read())
         except ValueError as e:
             raise cls._SCHEMA_EXCEPTION(
                 "Received non valid json: `%s`.\n" "Json error %s" % (f_path, e)

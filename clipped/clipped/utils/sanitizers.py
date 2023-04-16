@@ -1,16 +1,16 @@
-import json
-
 from collections.abc import Mapping
 from typing import Dict
+
+from clipped.utils.json import orjson_dumps
 
 
 def sanitize_value(d: Dict, handle_dict: bool = False):
     if isinstance(d, str):
         return d
     if not isinstance(d, Mapping):
-        return json.dumps(d)
+        return orjson_dumps(d)
     if not handle_dict:
-        return json.dumps(d)
+        return orjson_dumps(d)
     return {d_k: sanitize_value(d_v, handle_dict=True) for d_k, d_v in d.items()}
 
 

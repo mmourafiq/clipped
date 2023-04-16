@@ -2,16 +2,14 @@ import logging
 
 from typing import Any, Callable, List, Optional, Type, TypeVar
 
-import orjson
-
 from pydantic import PydanticTypeError, PydanticValueError, StrBytes, ValidationError
-from pydantic.parse import load_str_bytes, Protocol
+from pydantic.parse import Protocol, load_str_bytes
 from pydantic.tools import NameFactory, _get_parsing_type
 
 from clipped.config.constants import NO_VALUE_FOUND
 from clipped.config.exceptions import SchemaError
 from clipped.decorators.memoization import memoize, memoize_method
-
+from clipped.utils.json import orjson_loads
 
 _logger = logging.getLogger("clipped.parser")
 
@@ -60,7 +58,7 @@ class Parser:
         encoding: str = "utf8",
         proto: Protocol = None,
         allow_pickle: bool = False,
-        json_loads: Callable[[str], Any] = orjson.loads,
+        json_loads: Callable[[str], Any] = orjson_loads,
         type_name: Optional[NameFactory] = None,
     ) -> T:
         obj = load_str_bytes(
@@ -114,7 +112,7 @@ class Parser:
         try:
             if cls.is_loadable(target_type) and isinstance(value, str):
                 new_value = cls.parse_raw_as(
-                    target_type, value, json_loads=orjson.loads
+                    target_type, value, json_loads=orjson_loads
                 )
             else:
                 new_value = cls.parse_obj_as(target_type, value)

@@ -5,8 +5,6 @@ import pprint
 from collections.abc import Mapping
 from typing import Any, Callable, Dict, List, Optional, Union
 
-import orjson
-
 from pydantic import BaseModel, Extra
 
 from clipped.config.exceptions import SchemaError
@@ -14,7 +12,7 @@ from clipped.config.patch_strategy import PatchStrategy
 from clipped.config.spec import ConfigSpec
 from clipped.utils.dicts import deep_update
 from clipped.utils.humanize import humanize_timesince
-from clipped.utils.json import orjson_dumps
+from clipped.utils.json import orjson_dumps, orjson_loads
 from clipped.utils.strings import to_camel_case
 from clipped.utils.units import to_percentage, to_unit_memory
 
@@ -403,7 +401,7 @@ class BaseSchemaModel(BaseModel):
         use_enum_values = True
         extra = Extra.forbid
         json_dumps: Callable[..., str] = orjson_dumps
-        json_loads = orjson.loads
+        json_loads = orjson_loads
 
 
 def to_partial(cls):

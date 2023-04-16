@@ -1,4 +1,3 @@
-import json
 import sys
 import yaml
 
@@ -25,6 +24,7 @@ from rich.table import Column, Table
 from rich.theme import Theme
 
 from clipped.utils.humanize import humanize_attrs
+from clipped.utils.json import orjson_dumps, orjson_loads, orjson_pprint_option
 from clipped.utils.lists import to_list
 from clipped.utils.units import to_unit_memory
 
@@ -70,7 +70,7 @@ class Printer:
     @staticmethod
     def pprint(value):
         """Prints as formatted JSON"""
-        click.echo(json.dumps(value, sort_keys=True, indent=4, separators=(",", ": ")))
+        click.echo(orjson_dumps(value, option=orjson_pprint_option))
 
     @classmethod
     def print_md(cls, md: str):
@@ -92,8 +92,8 @@ class Printer:
     @classmethod
     def print_json(cls, value: any):
         if isinstance(value, str):
-            value = json.loads(value)
-        value = json.dumps(value, sort_keys=True, indent=4, separators=(",", ": "))
+            value = orjson_loads(value)
+        value = orjson_dumps(value, option=orjson_pprint_option)
         syntax = Syntax(value, "json", theme="dracula", line_numbers=False)
         cls.console.print(syntax)
 
