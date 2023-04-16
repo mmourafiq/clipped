@@ -33,7 +33,7 @@ def to_list(
     if check_dict and isinstance(value, Mapping):
         return list(value.items())
 
-    if check_str and np and isinstance(value, str):
+    if check_str and isinstance(value, str):
         parts = value.split(",")
         results = []
         for part in parts:
