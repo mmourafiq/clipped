@@ -45,10 +45,6 @@ class BaseSchemaModel(BaseModel):
     def get_identifier(cls):
         return cls._IDENTIFIER
 
-    @staticmethod
-    def _dump(obj_dict: Dict) -> str:
-        return orjson_dumps(obj_dict)
-
     def to_light_dict(
         self,
         humanize_values: bool = False,
