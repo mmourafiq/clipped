@@ -77,6 +77,7 @@ MAPPING = {
     METADATA: Dict,
     UUID: UUIDStr,
     EMAIL: EmailStr,
+    "any": Any,
     "str": GenericStr,
     "date": datetime.date,
     "datetime": datetime.date,
