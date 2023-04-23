@@ -8,7 +8,7 @@ from pydantic.tools import NameFactory, _get_parsing_type
 
 from clipped.config.constants import NO_VALUE_FOUND
 from clipped.config.exceptions import SchemaError
-from clipped.decorators.memoization import memoize, memoize_method
+from clipped.decorators.memoization import memoize
 from clipped.utils.json import orjson_loads
 
 _logger = logging.getLogger("clipped.parser")
@@ -71,8 +71,8 @@ class Parser:
         )
         return cls.parse_obj_as(type_, obj, type_name=type_name)
 
-    @staticmethod
-    def _check_options(key, value, options):
+    @classmethod
+    def _check_options(cls, key, value, options):
         if options and value not in options:
             raise cls._SCHEMA_EXCEPTION(
                 "The value `{}` provided for key `{}` "
@@ -131,7 +131,6 @@ class Parser:
             )
 
     @classmethod
-    @memoize_method
     def parse(cls, target_type: Any) -> Callable:
         """
         Get the value corresponding to the key and converts it to `target_type` using `type_convert`.
