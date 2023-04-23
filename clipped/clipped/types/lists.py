@@ -22,5 +22,5 @@ class ListStr(list):
 
         field = kwargs.get("field")
         raise TypeError(
-            f"Field `{field.name}` value be a valid UUID, received `{value}` instead."
+            f"Field `{field.name}` value must be a valid List, received `{value}` instead."
         )

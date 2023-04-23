@@ -46,6 +46,7 @@ from clipped.types.email import EmailStr
 from clipped.types.gcs import GcsPath
 from clipped.types.lists import ListStr
 from clipped.types.s3 import S3Path
+from clipped.types.strings import GenericStr
 from clipped.types.uri import Uri
 from clipped.types.uuids import UUIDStr
 from clipped.types.wasb import WasbPath
@@ -76,6 +77,7 @@ MAPPING = {
     METADATA: Dict,
     UUID: UUIDStr,
     EMAIL: EmailStr,
+    "str": GenericStr,
     "date": datetime.date,
     "datetime": datetime.date,
     "timedelta": datetime.timedelta,
@@ -83,6 +85,7 @@ MAPPING = {
 
 
 FORWARDING = {
+    "GenericStr": GenericStr,
     "Uri": Uri,
     "ImageStr": ImageStr,
     "GcsPath": GcsPath,
@@ -153,6 +156,7 @@ NON_LOADABLE = {
     EmailStr,
     UUIDStr,
     ListStr,
+    GenericStr,
     datetime.date,
     datetime.datetime,
     datetime.timedelta,

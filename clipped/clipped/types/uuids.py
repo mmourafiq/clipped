@@ -23,5 +23,5 @@ class UUIDStr(StrictStr):
 
         field = kwargs.get("field")
         raise TypeError(
-            f"Field `{field.name}` value be a valid UUID, received `{value}` instead."
+            f"Field `{field.name}` value must be a valid UUID, received `{value}` instead."
         )

@@ -316,12 +316,14 @@ class TestConfigManager(TestCase):
             self.config.get("string_error_key_3", StrictStr)
 
         value = self.config.get("string_error_key_4", "str")
-        assert value == "True"
+        assert value == "true"
         with self.assertRaises(SchemaError):
             self.config.get("string_error_key_4", StrictStr)
 
+        value = self.config.get("string_list_key_1", "str")
+        assert value == '["123","1.23","foo",""]'
         with self.assertRaises(SchemaError):
-            self.config.get("string_list_key_1", "str")
+            self.config.get("string_list_key_1", StrictStr)
 
         value = self.config.get("string_list_error_key_1", "str", is_list=True)
         assert value == ["123", "123"]
@@ -337,7 +339,7 @@ class TestConfigManager(TestCase):
             self.config.get("string_list_error_key_3", "str", is_list=True)
 
         value = self.config.get("string_list_error_key_4", "str", is_list=True)
-        assert value == ["123", "False"]
+        assert value == ["123", "false"]
         with self.assertRaises(SchemaError):
             self.config.get("string_list_error_key_4", StrictStr, is_list=True)
 
