@@ -1,6 +1,6 @@
 import datetime
 
-from typing import Dict, Any
+from typing import Any, Dict
 
 from pydantic import (
     ByteSize,
@@ -143,7 +143,7 @@ NON_LOADABLE = {
     "timedelta",
     "uuid",
     "email",
-    'Any',
+    "Any",
     Any,
     str,
     bool,
