@@ -4,7 +4,7 @@ from mock import patch
 from unittest import TestCase
 
 from clipped.config.contexts import get_project_path
-from clipped.config.manager import ConfigManager, ManagerVisibility
+from clipped.config.manager import ConfigManager
 
 
 class TestBaseConfigManger(TestCase):
@@ -25,7 +25,7 @@ class TestBaseConfigManger(TestCase):
 
         # Test configuration
         # Set IS_GLOBAL = False
-        self.DummyConfigManger.VISIBILITY = ManagerVisibility.LOCAL
+        self.DummyConfigManger.VISIBILITY = ConfigManager.Visibility.LOCAL
 
         # Set IN_PROJECT_DIR = True
         self.DummyConfigManger.IN_PROJECT_DIR = True
@@ -54,7 +54,7 @@ class TestBaseConfigManger(TestCase):
 
         # Test configuration
         # Set IS_GLOBAL = True
-        self.DummyConfigManger.VISIBILITY = ManagerVisibility.GLOBAL
+        self.DummyConfigManger.VISIBILITY = ConfigManager.Visibility.GLOBAL
 
         with patch.object(self.DummyConfigManger, "_create_dir") as path_fct:
             config_file1 = self.DummyConfigManger.get_config_filepath(create=True)

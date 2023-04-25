@@ -14,16 +14,15 @@ from clipped.utils.paths import check_or_create_path
 _logger = logging.getLogger("clipped.config.manager")
 
 
-class ManagerVisibility(str, PEnum):
-    GLOBAL = "global"
-    LOCAL = "local"
-    ALL = "all"
-
-
 class ConfigManager:
     """Base class for managing a configuration file."""
 
-    VISIBILITY: ManagerVisibility = None
+    class Visibility(str, PEnum):
+        GLOBAL = "global"
+        LOCAL = "local"
+        ALL = "all"
+
+    VISIBILITY: Visibility = None
     IN_PROJECT_DIR = False
     CONFIG_PATH: Optional[str] = None
     CONFIG_FILE_NAME: Optional[str] = None
@@ -51,27 +50,27 @@ class ConfigManager:
         return cls._TEMP_PATH
 
     @classmethod
-    def is_global(cls, visibility: Optional[ManagerVisibility] = None) -> bool:
+    def is_global(cls, visibility: Optional[Visibility] = None) -> bool:
         visibility = visibility or cls.VISIBILITY
-        return visibility == ManagerVisibility.GLOBAL
+        return visibility == cls.Visibility.GLOBAL
 
     @classmethod
     def is_local(cls, visibility=None) -> bool:
         visibility = visibility or cls.VISIBILITY
-        return visibility == ManagerVisibility.LOCAL
+        return visibility == cls.Visibility.LOCAL
 
     @classmethod
     def is_all_visibility(cls, visibility=None) -> bool:
         visibility = visibility or cls.VISIBILITY
-        return visibility == ManagerVisibility.ALL
+        return visibility == cls.Visibility.ALL
 
     @classmethod
     def get_visibility(cls) -> str:
         if cls.is_all_visibility():
             return (
-                ManagerVisibility.LOCAL
+                cls.Visibility.LOCAL
                 if cls.is_locally_initialized()
-                else ManagerVisibility.GLOBAL
+                else cls.Visibility.GLOBAL
             )
         return cls.VISIBILITY
 
@@ -259,11 +258,11 @@ class ConfigManager:
                 _purge()
             else:
                 config_filepath = cls.get_config_filepath(
-                    create=False, visibility=ManagerVisibility.LOCAL
+                    create=False, visibility=cls.Visibility.LOCAL
                 )
                 _purge()
                 config_filepath = cls.get_config_filepath(
-                    create=False, visibility=ManagerVisibility.GLOBAL
+                    create=False, visibility=cls.Visibility.GLOBAL
                 )
                 _purge()
         else:
