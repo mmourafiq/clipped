@@ -4,7 +4,7 @@ from clipped.config.exceptions import SchemaError
 from clipped.config.spec import ConfigSpec
 
 
-class TestReader(TestCase):
+class TestConfigSpec(TestCase):
     def test_reads_yaml_files(self):
         config = ConfigSpec.read_from("tests/fixtures/parsing/yaml_file.yml")
         assert config == {"x": 10, "y": 20, "foo": "bar", "type": "yaml"}

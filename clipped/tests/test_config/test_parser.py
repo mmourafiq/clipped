@@ -9,16 +9,16 @@ from pydantic import StrictInt, StrictStr
 
 from clipped.config.constants import NO_VALUE_FOUND
 from clipped.config.exceptions import SchemaError
-from clipped.config.parser import Parser
+from clipped.config.parser import ConfigParser
 from clipped.types import GcsPath, S3Path, Uri, WasbPath
 from clipped.types.docker_image import ImageStr
 from clipped.types.lists import ListStr
 from clipped.types.uuids import UUIDStr
 
 
-class TestParser(TestCase):
+class TestConfigParser(TestCase):
     def test_get_boolean(self):
-        get_boolean = Parser.parse(bool)
+        get_boolean = ConfigParser.parse(bool)
         value = get_boolean(key="bool_key", value="1")
         self.assertEqual(value, True)
 
@@ -124,8 +124,8 @@ class TestParser(TestCase):
         )
 
     def test_get_int(self):
-        get_int = Parser.parse(int)
-        get_strict_int = Parser.parse(StrictInt)
+        get_int = ConfigParser.parse(int)
+        get_strict_int = ConfigParser.parse(StrictInt)
         value = get_int(key="int_key_1", value=123)
         self.assertEqual(value, 123)
 
@@ -247,7 +247,7 @@ class TestParser(TestCase):
         )
 
     def test_get_float(self):
-        get_float = Parser.parse(float)
+        get_float = ConfigParser.parse(float)
         value = get_float(key="float_key_1", value=1.23)
         self.assertEqual(value, 1.23)
 
@@ -344,8 +344,8 @@ class TestParser(TestCase):
         )
 
     def test_get_string(self):
-        get_string = Parser.parse(str)
-        get_strict_string = Parser.parse(StrictStr)
+        get_string = ConfigParser.parse(str)
+        get_strict_string = ConfigParser.parse(StrictStr)
         value = get_string(key="string_key_1", value="123")
         self.assertEqual(value, "123")
 
@@ -485,7 +485,7 @@ class TestParser(TestCase):
         )
 
     def test_get_dict(self):
-        get_dict = Parser.parse(Dict)
+        get_dict = ConfigParser.parse(Dict)
         value = get_dict(
             key="dict_key_1",
             value={"key1": "foo", "key2": 2, "key3": False, "key4": "1"},
@@ -607,7 +607,7 @@ class TestParser(TestCase):
         )
 
     def test_get_uri(self):
-        get_uri = Parser.parse(Uri)
+        get_uri = ConfigParser.parse(Uri)
         value = get_uri(key="uri_key_1", value="https://user:pass@siteweb.ca")
         assert str(value) == "https://user:pass@siteweb.ca"
         assert value.user == "user"
@@ -749,8 +749,8 @@ class TestParser(TestCase):
         )
 
     def test_get_list(self):
-        get_list = Parser.parse(List)
-        get_list_str = Parser.parse(ListStr)
+        get_list = ConfigParser.parse(List)
+        get_list_str = ConfigParser.parse(ListStr)
 
         value = get_list(
             key="list_key_1", value='["user:pass@siteweb.ca", "pp", "0.1", "foo"]'
@@ -817,7 +817,7 @@ class TestParser(TestCase):
         )
 
     def test_get_wasbs_path(self):
-        parse_wasbs_path = Parser.parse(WasbPath)
+        parse_wasbs_path = ConfigParser.parse(WasbPath)
         # Correct url
         wasbs_path = "wasbs://container@user.blob.core.windows.net/path"
         expected = parse_wasbs_path(key="path", value=wasbs_path)
@@ -851,7 +851,7 @@ class TestParser(TestCase):
     def test_parse_gcs_path(self):
         # Correct url
         gcs_path = "gs://bucket/path/to/blob"
-        parse_gcs_path = Parser.parse(GcsPath)
+        parse_gcs_path = ConfigParser.parse(GcsPath)
         expected = parse_gcs_path(key="path", value=gcs_path)
         assert str(expected) == gcs_path
         assert expected.structured == dict(bucket="bucket", blob="path/to/blob")
@@ -871,14 +871,14 @@ class TestParser(TestCase):
 
     def test_parse_s3_path(self):
         s3_path = "s3://test/this/is/bad/key.txt"
-        parse_s3_path = Parser.parse(S3Path)
+        parse_s3_path = ConfigParser.parse(S3Path)
         expected = parse_s3_path(key="path", value=s3_path)
         assert str(expected) == s3_path
         assert expected.structured == dict(bucket="test", key="this/is/bad/key.txt")
 
     def test_parse_date(self):
         value = "2010-12-12"
-        get_date = Parser.parse(datetime.date)
+        get_date = ConfigParser.parse(datetime.date)
         parsed_url = get_date(key="date_key", value=value)
         assert parsed_url == datetime.date(2010, 12, 12)
 
@@ -892,7 +892,7 @@ class TestParser(TestCase):
 
     def test_parse_datetime(self):
         value = "2010-12-12 10:10"
-        get_datetime = Parser.parse(datetime.datetime)
+        get_datetime = ConfigParser.parse(datetime.datetime)
         parsed_url = get_datetime(key="date_key", value=value)
         assert parsed_url == datetime.datetime(2010, 12, 12, 10, 10)
 
@@ -925,7 +925,7 @@ class TestParser(TestCase):
 
     def test_parse_uuid(self):
         value = uuid.uuid4()
-        get_uuid = Parser.parse(UUIDStr)
+        get_uuid = ConfigParser.parse(UUIDStr)
         parsed_uid = get_uuid(key="uuid_key", value=value)
         assert parsed_uid == value.hex
 
@@ -941,7 +941,7 @@ class TestParser(TestCase):
             get_uuid(key="uuid_key", value=value)
 
     def test_get_image_init(self):
-        get_image_init = Parser.parse(ImageStr)
+        get_image_init = ConfigParser.parse(ImageStr)
         value = get_image_init(key="dict_key_1", value="foo")
         self.assertEqual(value, "foo")
 

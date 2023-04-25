@@ -16,7 +16,7 @@ _logger = logging.getLogger("clipped.parser")
 T = TypeVar("T")
 
 
-class Parser:
+class ConfigParser:
     _SCHEMA_EXCEPTION = SchemaError
 
     @staticmethod

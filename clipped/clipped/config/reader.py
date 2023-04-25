@@ -1,11 +1,11 @@
 from clipped.config.constants import NO_VALUE_FOUND
-from clipped.config.parser import Parser
+from clipped.config.parser import ConfigParser
 from clipped.config.spec import ConfigSpec
 
 
-class ConfigManager:
+class ConfigReader:
     _CONFIG_SPEC = ConfigSpec
-    _PARSER = Parser
+    _CONFIG_PARSER = ConfigParser
 
     def __init__(self, **data):
         self._data = data
@@ -88,7 +88,7 @@ class ConfigManager:
         kwargs = {}
         return self._get(
             key=key,
-            parser_fct=self._PARSER.parse(key_type),
+            parser_fct=self._CONFIG_PARSER.parse(key_type),
             is_list=is_list,
             is_optional=is_optional,
             is_secret=is_secret,

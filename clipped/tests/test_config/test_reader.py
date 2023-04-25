@@ -6,15 +6,15 @@ from pydantic import StrictInt, StrictStr
 
 from clipped import types
 from clipped.config.exceptions import SchemaError
-from clipped.config.manager import ConfigManager
+from clipped.config.reader import ConfigReader
 from clipped.types.lists import ListStr
 
 
-class TestConfigManager(TestCase):
+class TestConfigReader(TestCase):
     def setUp(self):
         super().setUp()
         os.environ["FOO_BAR_KEY"] = "foo_bar"
-        self.config = ConfigManager.read_configs(
+        self.config = ConfigReader.read_configs(
             [os.environ, "tests/fixtures/parsing/configs/config_tests.json"]
         )
 
@@ -23,13 +23,13 @@ class TestConfigManager(TestCase):
 
     def test_reading_invalid_json_config_raises_error(self):
         with self.assertRaises(SchemaError):
-            ConfigManager.read_configs(
+            ConfigReader.read_configs(
                 ["tests/fixtures/parsing/configs/invalid_config_tests.json"]
             )
 
     def test_reading_invalid_yaml_config_raises_error(self):
         with self.assertRaises(SchemaError):
-            ConfigManager.read_configs(
+            ConfigReader.read_configs(
                 ["tests/fixtures/parsing/configs/invalid_config_tests.yaml"]
             )
 
