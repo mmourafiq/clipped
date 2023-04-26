@@ -1,5 +1,4 @@
 import datetime
-import pytest
 
 from unittest import TestCase
 
@@ -73,7 +72,6 @@ class HumanizeTimesinceTest(TestCase):
         )
 
 
-@pytest.mark.utils_mark
 class HumanizeTimeDeltaTest(TestCase):
     """A test case for the `humanize_timedelta`."""
 
