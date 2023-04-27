@@ -1,7 +1,7 @@
 from urllib.parse import urlparse
 
 
-def validate_url(url):
+def validate_url(url: str) -> bool:
     if not url.startswith(("http://", "https://")):
         return False
     parsed = urlparse(url)
