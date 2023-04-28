@@ -1,6 +1,6 @@
 from typing import Dict, List, Optional, Tuple
 
-from clipped.formatting import humanize_attrs
+from clipped.utils.humanize import humanize_attrs
 
 
 def deep_update(config: Dict, override_config: Dict):
