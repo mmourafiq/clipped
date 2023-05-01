@@ -3,7 +3,7 @@ import os
 import pprint
 
 from collections.abc import Mapping
-from typing import Any, Callable, Dict, List, Optional, Union
+from typing import Any, Callable, Dict, List, Optional, Set, Union
 
 from pydantic import BaseModel, Extra
 
@@ -383,12 +383,16 @@ class BaseSchemaModel(BaseModel):
         strategy = strategy or PatchStrategy.POST_MERGE
         return self.patch_obj(self, values, strategy)
 
-    @staticmethod
-    def _get_bool(value: Any, default_value: bool):
-        if isinstance(value, bool):
-            return value
+    @classmethod
+    def get_keys_and_aliases(cls) -> Dict[str, str]:
+        return {key: field.alias for key, field in cls.__fields__.items()}
 
-        return default_value
+    @classmethod
+    def get_all_possible_keys(cls) -> Set[str]:
+        keys_and_aliases = cls.get_keys_and_aliases()
+        all_keys = {key for key, value in keys_and_aliases.items()}
+        all_aliases = {value for key, value in keys_and_aliases.items()}
+        return all_keys | all_aliases
 
     class Config:
         allow_population_by_field_name = True
