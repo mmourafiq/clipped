@@ -1,5 +1,5 @@
 import functools
-import warnings
+import logging
 
 from typing import Optional, Tuple
 
@@ -87,7 +87,7 @@ def warn_deprecation(
             current_logic=current_logic,
             new_logic=new_logic,
         )
-        warnings.warn(cls(message, details), category=DeprecationWarning, stacklevel=2)
+        logging.warning(cls(message, details))
 
 
 def deprecated(
