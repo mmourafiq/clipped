@@ -42,3 +42,9 @@ def to_list(
                 results.append(part)
         return results
     return [value]
+
+
+def add_to_list(l: List[Any], item: Any) -> List[Any]:
+    if item:
+        l.append(item)
+    return l
