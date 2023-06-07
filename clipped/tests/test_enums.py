@@ -21,10 +21,10 @@ class Dummy2Enum(PEnum):
 
 class TestEnums(TestCase):
     def test_enum_to_choices(self):
-        assert enum_to_choices(Dummy1Enum) == ((1, 1), (2, 2))
-        assert Dummy1Enum.to_choices() == ((1, 1), (2, 2))
-        assert enum_to_choices(Dummy2Enum) == (("A", "A"), ("B", "B"))
-        assert Dummy2Enum.to_choices() == (("A", "A"), ("B", "B"))
+        assert enum_to_choices(Dummy1Enum) == ((1, "a"), (2, "b"))
+        assert Dummy1Enum.to_choices() == ((1, "a"), (2, "b"))
+        assert enum_to_choices(Dummy2Enum) == (("A", "a"), ("B", "b"))
+        assert Dummy2Enum.to_choices() == (("A", "a"), ("B", "b"))
 
     def test_values_to_choices(self):
         assert values_to_choices({1, 2}) == ((1, 1), (2, 2))

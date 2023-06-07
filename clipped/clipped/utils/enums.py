@@ -9,7 +9,7 @@ def get_enum_value(e: Union[str, Enum]) -> str:
 
 
 def enum_to_choices(enumeration: Type[Enum]) -> Iterable[Tuple[str, str]]:
-    return tuple((e.value, e.value) for e in enumeration)
+    return tuple((e.value, e.name.lower()) for e in enumeration)
 
 
 def enum_to_list(enumeration: Type[Enum]) -> List[str]:

@@ -22,7 +22,7 @@ def get_core_workers(per_core: int, max_workers: Optional[int] = None) -> int:
 def exit_context() -> Generator:
     exit_event = threading.Event()
 
-    def _exit_handler(*args, **kwargs) -> None:
+    def _exit_handler(*args, **kwargs):
         _logger.info("Keyboard Interrupt received, exiting pool.")
         exit_event.set()
 
