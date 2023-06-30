@@ -19,7 +19,7 @@ def check_or_create_path(path: Optional[str] = None, is_dir: bool = False):
         os.makedirs(path, exist_ok=True)
 
 
-def delete_path(path: str, reraise: bool = False) -> None:
+def delete_path(path: str, reraise: bool = False):
     if not os.path.exists(path):
         return
     try:
