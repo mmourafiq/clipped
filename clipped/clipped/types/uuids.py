@@ -1,10 +1,10 @@
 from typing import TYPE_CHECKING
 from uuid import UUID
 
-from pydantic import StrictStr
+from clipped.compact.pydantic import StrictStr
 
 if TYPE_CHECKING:
-    from pydantic.typing import CallableGenerator
+    from clipped.compact.pydantic import CallableGenerator
 
 
 class UUIDStr(StrictStr):

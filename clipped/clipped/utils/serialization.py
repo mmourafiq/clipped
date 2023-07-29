@@ -1,7 +1,11 @@
 from typing import Any
 
-from pydantic.datetime_parse import parse_date, parse_datetime, parse_duration
-from pydantic.validators import uuid_validator
+from clipped.compact.pydantic import (
+    parse_date,
+    parse_datetime,
+    parse_duration,
+    uuid_validator,
+)
 
 date_serialize = lambda x: x.isoformat()
 date_deserialize = lambda x: parse_date(x)

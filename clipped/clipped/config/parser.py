@@ -2,10 +2,16 @@ import logging
 
 from typing import Any, Callable, List, Optional, Type, TypeVar
 
-from pydantic import PydanticTypeError, PydanticValueError, StrBytes, ValidationError
-from pydantic.parse import Protocol, load_str_bytes
-from pydantic.tools import NameFactory, _get_parsing_type
-
+from clipped.compact.pydantic import (
+    NameFactory,
+    Protocol,
+    PydanticTypeError,
+    PydanticValueError,
+    StrBytes,
+    ValidationError,
+    _get_parsing_type,
+    load_str_bytes,
+)
 from clipped.config.constants import NO_VALUE_FOUND
 from clipped.config.exceptions import SchemaError
 from clipped.decorators.memoization import memoize

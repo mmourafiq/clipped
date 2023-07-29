@@ -2,9 +2,8 @@ import os
 
 from unittest import TestCase
 
-from pydantic import StrictInt, StrictStr
-
 from clipped import types
+from clipped.compact.pydantic import StrictInt, StrictStr
 from clipped.config.exceptions import SchemaError
 from clipped.config.reader import ConfigReader
 from clipped.types.lists import ListStr

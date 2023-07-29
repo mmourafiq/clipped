@@ -2,11 +2,10 @@ import re
 
 from typing import TYPE_CHECKING
 
-from pydantic import StrictStr
-from pydantic.validators import strict_str_validator
+from clipped.compact.pydantic import StrictStr, strict_str_validator
 
 if TYPE_CHECKING:
-    from pydantic.typing import CallableGenerator
+    from clipped.compact.pydantic import CallableGenerator
 
 
 class EmailStr(StrictStr):

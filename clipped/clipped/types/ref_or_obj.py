@@ -1,13 +1,16 @@
 from datetime import datetime, timedelta
 from typing import TYPE_CHECKING, Union
 
-from pydantic import StrictFloat, StrictInt, StrictStr
-from pydantic.validators import strict_str_validator
-
+from clipped.compact.pydantic import (
+    StrictFloat,
+    StrictInt,
+    StrictStr,
+    strict_str_validator,
+)
 from clipped.config.constants import PARAM_REGEX
 
 if TYPE_CHECKING:
-    from pydantic.typing import CallableGenerator
+    from clipped.compact.pydantic import CallableGenerator
 
 
 class RefField(StrictStr):

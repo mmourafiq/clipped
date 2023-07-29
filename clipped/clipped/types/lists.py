@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 from clipped.utils.lists import to_list
 
 if TYPE_CHECKING:
-    from pydantic.typing import CallableGenerator
+    from clipped.compact.pydantic import CallableGenerator
 
 
 class ListStr(list):

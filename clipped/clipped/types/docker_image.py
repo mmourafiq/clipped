@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 from clipped.config.constants import PARAM_REGEX
 
 if TYPE_CHECKING:
-    from pydantic.typing import CallableGenerator
+    from clipped.compact.pydantic import CallableGenerator
 
 
 def validate_image(image, allow_none=False):

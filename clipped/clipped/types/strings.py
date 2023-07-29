@@ -4,7 +4,7 @@ from uuid import UUID
 from clipped.utils.json import orjson_dumps
 
 if TYPE_CHECKING:
-    from pydantic.typing import CallableGenerator
+    from clipped.compact.pydantic import CallableGenerator
 
 
 class GenericStr(str):

@@ -5,8 +5,8 @@ from typing import Dict, List
 from unittest import TestCase
 
 from dateutil.tz import tzutc
-from pydantic import StrictInt, StrictStr
 
+from clipped.compact.pydantic import StrictInt, StrictStr
 from clipped.config.constants import NO_VALUE_FOUND
 from clipped.config.exceptions import SchemaError
 from clipped.config.parser import ConfigParser

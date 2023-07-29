@@ -1,10 +1,9 @@
 from typing import TYPE_CHECKING, Any, Dict
 
-from pydantic import AnyUrl
+from clipped.compact.pydantic import AnyUrl
 
 if TYPE_CHECKING:
-    from pydantic.config import BaseConfig
-    from pydantic.fields import ModelField
+    from clipped.compact.pydantic import BaseConfig, ModelField
 
 
 class S3Path(AnyUrl):

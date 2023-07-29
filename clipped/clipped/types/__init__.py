@@ -2,7 +2,7 @@ import datetime
 
 from typing import Any, Dict
 
-from pydantic import (
+from clipped.compact.pydantic import (
     ByteSize,
     ConstrainedBytes,
     ConstrainedDate,
@@ -40,7 +40,6 @@ from pydantic import (
     StrictInt,
     StrictStr,
 )
-
 from clipped.types.docker_image import ImageStr
 from clipped.types.email import EmailStr
 from clipped.types.gcs import GcsPath

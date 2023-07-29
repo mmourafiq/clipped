@@ -5,8 +5,7 @@ import pprint
 from collections.abc import Mapping
 from typing import Any, Callable, Dict, List, Optional, Set, Union
 
-from pydantic import BaseModel, Extra
-
+from clipped.compact.pydantic import BaseModel, Extra
 from clipped.config.exceptions import SchemaError
 from clipped.config.patch_strategy import PatchStrategy
 from clipped.config.spec import ConfigSpec
