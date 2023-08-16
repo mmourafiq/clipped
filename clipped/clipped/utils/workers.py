@@ -1,9 +1,10 @@
+import asyncio
 import logging
 import os
 import signal
 import threading
 
-from contextlib import contextmanager
+from contextlib import asynccontextmanager, contextmanager
 from typing import Generator, Optional
 
 _logger = logging.getLogger("clipped.workers")
@@ -18,10 +19,7 @@ def get_core_workers(per_core: int, max_workers: Optional[int] = None) -> int:
     return max(count, max_workers) if max_workers else count
 
 
-@contextmanager
-def exit_context() -> Generator:
-    exit_event = threading.Event()
-
+def _exit_context(exit_event):
     def _exit_handler(*args, **kwargs):
         _logger.info("Keyboard Interrupt received, exiting pool.")
         exit_event.set()
@@ -34,6 +32,19 @@ def exit_context() -> Generator:
         pass
     finally:
         signal.signal(signal.SIGINT, original)
+
+@contextmanager
+def sync_exit_context() -> Generator:
+    exit_event = threading.Event()
+
+    yield _exit_context(exit_event)
+
+
+@asynccontextmanager
+async def async_exit_context() -> Generator:
+    exit_event = asyncio.Event()
+
+    yield _exit_context(exit_event)
 
 
 def get_wait(current: int) -> float:
