@@ -33,6 +33,7 @@ def _exit_context(exit_event):
     finally:
         signal.signal(signal.SIGINT, original)
 
+
 @contextmanager
 def sync_exit_context() -> Generator:
     exit_event = threading.Event()
