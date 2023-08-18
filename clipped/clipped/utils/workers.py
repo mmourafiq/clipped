@@ -19,7 +19,10 @@ def get_core_workers(per_core: int, max_workers: Optional[int] = None) -> int:
     return max(count, max_workers) if max_workers else count
 
 
-def _exit_context(exit_event):
+@contextmanager
+def sync_exit_context() -> Generator:
+    exit_event = threading.Event()
+
     def _exit_handler(*args, **kwargs):
         _logger.info("Keyboard Interrupt received, exiting pool.")
         exit_event.set()
@@ -34,18 +37,23 @@ def _exit_context(exit_event):
         signal.signal(signal.SIGINT, original)
 
 
-@contextmanager
-def sync_exit_context() -> Generator:
-    exit_event = threading.Event()
-
-    return _exit_context(exit_event)
-
-
 @asynccontextmanager
-async def async_exit_context() -> Generator:
+async def async_exit_context():
     exit_event = asyncio.Event()
 
-    return _exit_context(exit_event)
+    def _exit_handler(*args, **kwargs):
+        _logger.info("Keyboard Interrupt received, exiting pool.")
+        exit_event.set()
+
+    original = signal.getsignal(signal.SIGINT)
+    try:
+        signal.signal(signal.SIGINT, _exit_handler)
+        yield exit_event
+    except SystemExit:
+        pass
+    finally:
+        signal.signal(signal.SIGINT, original)
+
 
 
 def get_wait(current: int) -> float:
