@@ -55,7 +55,6 @@ async def async_exit_context():
         signal.signal(signal.SIGINT, original)
 
 
-
 def get_wait(current: int) -> float:
     intervals = [0.25, 0.5, 1.0, 2.0, 4.0, 8.0]
 
