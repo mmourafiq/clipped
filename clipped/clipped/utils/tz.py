@@ -41,5 +41,7 @@ def local_datetime(datetime_value, tz=None):
     return datetime_value.astimezone(get_timezone(tz))
 
 
-def get_datetime_from_now(days: int, hours: int = 0, minutes: int = 0) -> datetime:
-    return now() - timedelta(days=days, hours=hours, minutes=minutes)
+def get_datetime_from_now(
+    days: float, hours: float = 0, minutes: float = 0, seconds: float = 0
+) -> datetime:
+    return now() - timedelta(days=days, hours=hours, minutes=minutes, seconds=seconds)
