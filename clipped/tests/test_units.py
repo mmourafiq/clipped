@@ -1,6 +1,13 @@
 from unittest import TestCase
 
-from clipped.utils.units import format_sizeof, number_percentage_format, to_percentage
+from clipped.utils.units import (
+    format_sizeof,
+    number_percentage_format,
+    to_cpu_value,
+    to_memory_bytes,
+    to_percentage,
+    to_unit_memory,
+)
 
 
 class ToPercentageTest(TestCase):
@@ -24,6 +31,12 @@ class ToPercentageTest(TestCase):
                 number_percentage_format(num, precision=2, use_comma=True), expected
             )
 
+    def test_number_percentage_format_simple(self):
+        self.assertEqual(number_percentage_format(50), 50)
+        self.assertEqual(number_percentage_format(50.55, 2), "50.55")
+        self.assertEqual(number_percentage_format(50.555, 2), "50.55")
+        self.assertEqual(number_percentage_format(50.555, 4, True), "50.5550")
+
     def test_get_percentage_works_as_expected(self):
         float_nums = [
             (0.123, "12.30%"),
@@ -42,6 +55,13 @@ class ToPercentageTest(TestCase):
             self.assertEqual(
                 to_percentage(num, rounding=2, precision=2, use_comma=True), expected
             )
+
+    def test_to_percentage_simple(self):
+        self.assertEqual(to_percentage(0.5), "50%")
+        self.assertEqual(to_percentage(0.555, 2), "55.5%")
+        self.assertEqual(to_percentage(0.555, 3), "55.5%")
+        self.assertEqual(to_percentage(0.5555, 3), "55.55%")
+        self.assertEqual(to_percentage(0.5558, 5), "55.58%")
 
     def test_works_as_expected_for_valid_values(self):
         test_data = [
@@ -95,3 +115,43 @@ class ToPercentageTest(TestCase):
         assert format_sizeof(100000) == "97.7KiB"
         assert format_sizeof(10000000) == "9.5MiB"
         assert format_sizeof(10000000000) == "9.3GiB"
+
+        self.assertEqual(format_sizeof(500), "500.0B")
+        self.assertEqual(format_sizeof(1500), "1.5KiB")
+        self.assertEqual(format_sizeof(1_500_000), "1.4MiB")
+        self.assertEqual(format_sizeof(1_500_000_000), "1.4GiB")
+
+    def test_to_cpu_value(self):
+        self.assertEqual(to_cpu_value(0.5), 0.5)
+        self.assertEqual(to_cpu_value("0.5"), 0.5)
+        self.assertEqual(to_cpu_value("500m"), 0.5)
+        self.assertEqual(to_cpu_value("500u"), 0.0005)
+        self.assertEqual(to_cpu_value("500n"), 5e-07)
+
+    def test_to_memory_bytes(self):
+        self.assertEqual(to_memory_bytes(1500), 1500)
+        self.assertEqual(to_memory_bytes("1k"), 1000)
+        self.assertEqual(to_memory_bytes("1m"), 1000000)
+        self.assertEqual(to_memory_bytes("1g"), 1000000000)
+        self.assertEqual(to_memory_bytes("1ki"), 1024)
+        self.assertEqual(to_memory_bytes("1mi"), 1048576)
+        self.assertEqual(to_memory_bytes("1gi"), 1073741824)
+
+    def test_to_unit_memory(self):
+        def validate(use_i: bool):
+            suffix = "i" if use_i else ""
+            self.assertEqual(
+                to_unit_memory(500, use_i=use_i), "0.49 K{}".format(suffix)
+            )
+            self.assertEqual(
+                to_unit_memory(1500000, use_i=use_i), "1.43 M{}".format(suffix)
+            )
+            self.assertEqual(
+                to_unit_memory(1500000000, use_i=use_i), "1.4 G{}".format(suffix)
+            )
+            self.assertEqual(
+                to_unit_memory(1500000000000, use_i=use_i), "1.36 T{}".format(suffix)
+            )
+
+        validate(use_i=True)
+        validate(use_i=False)

@@ -72,33 +72,36 @@ def to_memory_bytes(mem_definition: Union[str, int, float]) -> int:
     return 0
 
 
-def to_unit_memory(number: Union[int, float], precision: int = 2) -> str:
+def to_unit_memory(
+    number: Union[int, float], precision: int = 2, use_i: bool = False
+) -> str:
     """Creates a string representation of memory size given `number`."""
+    suffix = "i" if use_i else ""
     kb = 1024
 
     number /= kb
 
     if number < 100:
-        return "{} Ki".format(round(number, precision))
+        return "{} K{}".format(round(number, precision), suffix)
 
     number /= kb
     if number < 300:
-        return "{} Mi".format(round(number, precision))
+        return "{} M{}".format(round(number, precision), suffix)
 
     number /= kb
     if number < 900:
-        return "{} Gi".format(round(number, precision))
+        return "{} G{}".format(round(number, precision), suffix)
 
     number /= kb
     if number < 900:
-        return "{} Ti".format(round(number, precision))
+        return "{} T{}".format(round(number, precision), suffix)
 
     number /= kb
     if number < 900:
-        return "{} Pi".format(round(number, precision))
+        return "{} P{}".format(round(number, precision), suffix)
 
     number /= kb
-    return "{} Ei".format(round(number, precision))
+    return "{} E{}".format(round(number, precision), suffix)
 
 
 def number_percentage_format(
@@ -124,7 +127,7 @@ def to_percentage(
 
     Raises `ValueError` if `number` cannot be converted to a number.
     """
-    number = float(number) * 100
+    number = float(number) * 10**2
     number_as_int = int(number)
     rounded = round(number, rounding)
     value = (
