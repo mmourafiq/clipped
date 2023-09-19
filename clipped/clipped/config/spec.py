@@ -26,7 +26,7 @@ class ConfigSpec:
 
     @classmethod
     def get_from(cls, value: Any, config_type: str = None) -> "ConfigSpec":
-        if isinstance(value, cls):
+        if isinstance(value, ConfigSpec):
             return value
 
         return cls(value=value, config_type=config_type)

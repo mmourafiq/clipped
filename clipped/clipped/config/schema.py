@@ -403,6 +403,11 @@ class BaseSchemaModel(BaseModel):
         json_loads = orjson_loads
 
 
+class BaseAllowSchemaModel(BaseSchemaModel):
+    class Config(BaseSchemaModel.Config):
+        extra = Extra.allow
+
+
 def to_partial(cls):
     class NewCls(cls):
         _PARTIAL = True
