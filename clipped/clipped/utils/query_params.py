@@ -1,6 +1,4 @@
-from typing import Dict, Optional, Union
-
-from polyaxon.lifecycle import V1Statuses
+from typing import Dict, Optional
 
 
 def get_query_params(
@@ -40,7 +38,7 @@ def get_logs_params(
 
 def get_streams_params(
     connection: Optional[str] = None,
-    status: Optional[Union[V1Statuses, str]] = None,
+    status: Optional[str] = None,
     force: Optional[bool] = None,
 ) -> Dict:
     params = {}
