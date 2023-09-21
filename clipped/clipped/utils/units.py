@@ -73,35 +73,39 @@ def to_memory_bytes(mem_definition: Union[str, int, float]) -> int:
 
 
 def to_unit_memory(
-    number: Union[int, float], precision: int = 2, use_i: bool = False
+    number: Union[int, float],
+    precision: int = 2,
+    use_i: bool = False,
+    use_space: bool = True,
 ) -> str:
     """Creates a string representation of memory size given `number`."""
     suffix = "i" if use_i else ""
+    space = " " if use_space else ""
     kb = 1024
 
     number /= kb
 
     if number < 100:
-        return "{} K{}".format(round(number, precision), suffix)
+        return "{}{}K{}".format(round(number, precision), space, suffix)
 
     number /= kb
     if number < 300:
-        return "{} M{}".format(round(number, precision), suffix)
+        return "{}{}M{}".format(round(number, precision), space, suffix)
 
     number /= kb
     if number < 900:
-        return "{} G{}".format(round(number, precision), suffix)
+        return "{}{}G{}".format(round(number, precision), space, suffix)
 
     number /= kb
     if number < 900:
-        return "{} T{}".format(round(number, precision), suffix)
+        return "{}{}T{}".format(round(number, precision), space, suffix)
 
     number /= kb
     if number < 900:
-        return "{} P{}".format(round(number, precision), suffix)
+        return "{}{}P{}".format(round(number, precision), space, suffix)
 
     number /= kb
-    return "{} E{}".format(round(number, precision), suffix)
+    return "{}{}E{}".format(round(number, precision), space, suffix)
 
 
 def number_percentage_format(
