@@ -55,9 +55,10 @@ async def async_exit_context():
         signal.signal(signal.SIGINT, original)
 
 
-def get_wait(current: int) -> float:
-    intervals = [0.25, 0.5, 1.0, 2.0, 4.0, 8.0]
+def get_wait(current: int, max_interval: Optional[int] = None) -> float:
+    max_interval = max_interval or 6
+    intervals = [0.25 * 2**i for i in range(max_interval + 1)]
 
-    if current >= 5:
-        current = 5
+    if current >= max_interval:
+        current = max_interval
     return intervals[current]
