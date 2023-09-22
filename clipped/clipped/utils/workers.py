@@ -57,8 +57,9 @@ async def async_exit_context():
 
 def get_wait(current: int, max_interval: Optional[int] = None) -> float:
     max_interval = max_interval or 6
-    intervals = [0.25 * 2**i for i in range(max_interval + 1)]
+    max_index = max_interval - 1
 
-    if current >= max_interval:
-        current = max_interval
+    if current >= max_index:
+        current = max_index
+    intervals = [0.25 * 2**i for i in range(max_interval)]
     return intervals[current]
