@@ -3,9 +3,9 @@ import os
 import pprint
 
 from collections.abc import Mapping
-from typing import Any, Callable, Dict, List, Optional, Set, Union
+from typing import Any, Callable, Dict, List, Optional, Set, Type, Union
 
-from clipped.compact.pydantic import BaseModel, Extra
+from clipped.compact.pydantic import BaseModel, Extra, create_model
 from clipped.config.exceptions import SchemaError
 from clipped.config.patch_strategy import PatchStrategy
 from clipped.config.spec import ConfigSpec
@@ -406,6 +406,27 @@ class BaseSchemaModel(BaseModel):
 class BaseAllowSchemaModel(BaseSchemaModel):
     class Config(BaseSchemaModel.Config):
         extra = Extra.allow
+
+
+def base_schema(cls, new_cls: Type[BaseSchemaModel]):
+    """
+    `base_schema` is a decorator to add the `BaseSchemaModel` to a class.
+
+    usage example:
+        @base_schema
+        class MySchema:
+            ...
+    """
+
+    if not issubclass(cls, BaseModel):
+        raise TypeError("Class must be a subclass of pydantic.BaseModel")
+
+    return functools.wraps(cls, updated=())(
+        create_model(
+            cls.__name__,
+            __base__=(cls, new_cls),
+        )
+    )  # type: ignore
 
 
 def to_partial(cls):
