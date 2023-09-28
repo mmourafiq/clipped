@@ -1,9 +1,11 @@
 import datetime
+import os
 import re
 import unicodedata
 
 from collections.abc import Mapping
 from decimal import Decimal
+from io import StringIO
 from typing import Any, Callable
 
 from clipped.utils.json import orjson_dumps
@@ -96,3 +98,10 @@ def to_string(v: Any):
     if v is None:
         return v
     return str(v)
+
+
+def validate_file_or_buffer(data: str):
+    if data and not os.path.exists(data):
+        data = StringIO(data)
+
+    return data

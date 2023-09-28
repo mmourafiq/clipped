@@ -1,15 +1,6 @@
-import os
 import sys
 
-from io import StringIO
 from typing import Dict
-
-
-def validate_csv(csv: str):
-    if csv and not os.path.exists(csv):
-        csv = StringIO(csv)
-
-    return csv
 
 
 def write_csv(objects: Dict, filename: str):
