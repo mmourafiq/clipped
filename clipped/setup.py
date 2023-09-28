@@ -49,7 +49,7 @@ setup(
         "utils",
         "setup",
     ],
-    python_requires=">=3.7",
+    python_requires=">=3.8",
     classifiers=[
         "Intended Audience :: Information Technology",
         "Intended Audience :: System Administrators",
