@@ -1,5 +1,4 @@
-import datetime
-
+from datetime import date, datetime, timedelta
 from typing import Any, Dict
 
 from clipped.compact.pydantic import (
@@ -78,9 +77,9 @@ MAPPING = {
     EMAIL: EmailStr,
     "any": Any,
     "str": GenericStr,
-    "date": datetime.date,
-    "datetime": datetime.date,
-    "timedelta": datetime.timedelta,
+    "date": date,
+    "datetime": date,
+    "timedelta": timedelta,
 }
 
 
@@ -160,9 +159,9 @@ NON_LOADABLE = {
     UUIDStr,
     ListStr,
     GenericStr,
-    datetime.date,
-    datetime.datetime,
-    datetime.timedelta,
+    date,
+    datetime,
+    timedelta,
 }
 
 
