@@ -1,8 +1,9 @@
 import logging
 import os
+import yaml
 
 from collections.abc import Mapping
-from typing import Any, Dict, Optional, Type
+from typing import Any, Dict, Literal, Optional, Type
 
 from clipped.config.contexts import get_project_path, get_temp_path
 from clipped.config.reader import ConfigReader
@@ -27,6 +28,7 @@ class ConfigManager:
     CONFIG_PATH: Optional[str] = None
     CONFIG_FILE_NAME: Optional[str] = None
     CONFIG: Type[BaseSchemaModel] = None
+    PERSIST_FORMAT: Literal["json", "yaml"] = "json"
     _CONFIG_READER: Type[ConfigReader] = ConfigReader
     _LOGGER = _logger
     _PROJECT = ".clipped"
@@ -179,16 +181,28 @@ class ConfigManager:
                     config.to_dict(),
                     cls.CONFIG_FILE_NAME,
                 )
-                config_file.write(config.to_json())
+                if cls.PERSIST_FORMAT == "yaml" and hasattr(config, "to_yaml"):
+                    config_file.write(config.to_yaml())
+                else:
+                    config_file.write(config.to_json())
             elif hasattr(config, "to_dict"):
                 cls._LOGGER.debug(
                     "Setting %s in the file %s\n",
                     config.to_dict(),
                     cls.CONFIG_FILE_NAME,
                 )
-                config_file.write(config.to_dict())
+                dict_config = config.to_dict()
+                if cls.PERSIST_FORMAT == "yaml":
+                    config_file.write(
+                        yaml.safe_dump(dict_config, sort_keys=True, indent=2)
+                    )
+                else:
+                    config_file.write(dict_config)
             elif isinstance(config, Mapping):
-                config_file.write(orjson_dumps(config))
+                if cls.PERSIST_FORMAT == "yaml":
+                    config_file.write(yaml.safe_dump(config, sort_keys=True, indent=2))
+                else:
+                    config_file.write(orjson_dumps(config))
             else:
                 cls._LOGGER.debug(
                     "Setting %s in the file %s\n", config, cls.CONFIG_FILE_NAME

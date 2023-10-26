@@ -1,6 +1,7 @@
 import functools
 import os
 import pprint
+import yaml
 
 from collections.abc import Mapping
 from typing import Any, Callable, Dict, List, Optional, Set, Type, Union
@@ -84,6 +85,26 @@ class BaseSchemaModel(BaseModel):
             exclude_defaults=exclude_defaults,
         )
         return obj
+
+    def to_yaml(
+        self,
+        humanize_values: bool = False,
+        include_kind: bool = False,
+        include_version: bool = False,
+        exclude_unset: bool = True,
+        exclude_none: bool = True,
+        exclude_defaults: bool = False,
+    ):
+        obj = self.obj_to_dict(
+            self,
+            humanize_values=humanize_values,
+            include_kind=include_kind,
+            include_version=include_version,
+            exclude_unset=exclude_unset,
+            exclude_none=exclude_none,
+            exclude_defaults=exclude_defaults,
+        )
+        return yaml.safe_dump(obj, sort_keys=True, indent=2)
 
     def to_json(
         self,

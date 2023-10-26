@@ -1,5 +1,5 @@
 NAME = "clipped"
-VERSION = "0.7.1"
+VERSION = "0.7.2"
 DESC = "Common shortcuts and utils."
 URL = "https://github.com/mmourafiq/clipped"
 AUTHOR = "Mourad Mourafiq"
