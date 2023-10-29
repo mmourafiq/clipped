@@ -27,6 +27,7 @@ class ConfigManager:
     IN_PROJECT_DIR = False
     CONFIG_PATH: Optional[str] = None
     CONFIG_FILE_NAME: Optional[str] = None
+    ALTERNATE_CONFIG_FILE_NAME: Optional[str] = None
     CONFIG: Type[BaseSchemaModel] = None
     PERSIST_FORMAT: Literal["json", "yaml"] = "json"
     _CONFIG_READER: Type[ConfigReader] = ConfigReader
@@ -106,6 +107,12 @@ class ConfigManager:
             # Add it to the current ".project" path
             base_path = os.path.join(base_path, cls._PROJECT)
         config_path = os.path.join(base_path, cls.CONFIG_FILE_NAME)
+        if cls.ALTERNATE_CONFIG_FILE_NAME and not os.path.isfile(config_path):
+            alternate_config_path = os.path.join(
+                base_path, cls.ALTERNATE_CONFIG_FILE_NAME
+            )
+            if os.path.isfile(alternate_config_path):
+                config_path = alternate_config_path
         return config_path
 
     @classmethod
@@ -119,6 +126,12 @@ class ConfigManager:
         else:
             base_path = cls._get_project_path()
         config_path = os.path.join(base_path, cls.CONFIG_FILE_NAME)
+        if cls.ALTERNATE_CONFIG_FILE_NAME and not os.path.isfile(config_path):
+            alternate_config_path = os.path.join(
+                base_path, cls.ALTERNATE_CONFIG_FILE_NAME
+            )
+            if os.path.isfile(alternate_config_path):
+                config_path = alternate_config_path
         return config_path
 
     @classmethod
