@@ -27,9 +27,9 @@ def absolute_uri(
         return urljoin(clean_host(host) + "/", url.lstrip("/"))
 
     protocol = protocol or "http"
+    host = f"{protocol}://{host}"
 
-    url = urljoin(clean_host(host) + "/", url.lstrip("/"))
-    return f"{protocol}://{url}"
+    return urljoin(clean_host(host) + "/", url.lstrip("/"))
 
 
 def add_notification_referrer_param(
