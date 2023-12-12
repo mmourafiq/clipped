@@ -15,7 +15,7 @@ def get_pool_workers() -> int:
 
 
 def get_core_workers(per_core: int, max_workers: Optional[int] = None) -> int:
-    count = per_core * (os.cpu_count() or 1) + 1
+    count = int(per_core) * (os.cpu_count() or 1) + 1
     return max(count, max_workers) if max_workers else count
 
 
