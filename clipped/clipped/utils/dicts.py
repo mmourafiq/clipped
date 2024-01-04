@@ -113,6 +113,8 @@ def dict_to_tabulate(
 ):
     exclude_attrs = exclude_attrs or {}
     results = {}
+    if hasattr(d_value, "to_dict"):
+        d_value = d_value.to_dict()
     for k, v in d_value.items():
         if k in exclude_attrs:
             continue
