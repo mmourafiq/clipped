@@ -8,6 +8,9 @@ class ClippedException(ClickException):
     def __repr__(self):
         return self.message
 
+    def __str__(self):
+        return self.message
+
 
 class SchemaError(ClippedException):
     pass
