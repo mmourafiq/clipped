@@ -6,10 +6,14 @@ class ClippedException(ClickException):
         super().__init__(message)
 
     def __repr__(self):
-        return self.message
+        if hasattr(self, "message"):
+            return self.message
+        return super().__repr__()
 
     def __str__(self):
-        return self.message
+        if hasattr(self, "message"):
+            return self.message
+        return super().__str__()
 
 
 class SchemaError(ClippedException):
