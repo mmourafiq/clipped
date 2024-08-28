@@ -303,7 +303,10 @@ def get_relative_path_to(base_path, paths: List[str]) -> List[str]:
 
 RW_R_R_PERMISSIONS = 0o644
 
-def set_permissions(path: str, permissions: int = RW_R_R_PERMISSIONS, reraise: bool = False):
+
+def set_permissions(
+    path: str, permissions: int = RW_R_R_PERMISSIONS, reraise: bool = False
+):
     try:
         os.chmod(path, permissions or RW_R_R_PERMISSIONS)
     except OSError as e:
