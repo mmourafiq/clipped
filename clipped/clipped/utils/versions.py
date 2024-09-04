@@ -2,10 +2,8 @@ import re
 
 
 def get_loose_version(vstring: str):
-    try:
-        from setuptools._distutils.version import LooseVersion
-    except ImportError:
-        from distutils.version import LooseVersion
+    from clipped._vendor.version import LooseVersion
+
     return LooseVersion(vstring)
 
 
