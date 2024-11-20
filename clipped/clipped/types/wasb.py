@@ -1,23 +1,16 @@
 import re
 
-from typing import TYPE_CHECKING, Any, Dict
+from typing import Any, Dict
 from urllib.parse import urlparse
 
-from clipped.compact.pydantic import AnyUrl
-
-if TYPE_CHECKING:
-    from clipped.compact.pydantic import BaseConfig, ModelField
+from clipped.types.base_url import BaseUrl
 
 
-class WasbPath(AnyUrl):
+class WasbPath(BaseUrl):
     allowed_schemes = {"https", "wasb", "wasbs", "https", "az", "abfs"}
 
-    __slots__ = ()
-
     @classmethod
-    def validate(
-        cls, value: Any, field: "ModelField", config: "BaseConfig"
-    ) -> "AnyUrl":
+    def _validate(cls, value: Any):
         if isinstance(value, Dict):
             _value = value.get("container")
             if not _value:
@@ -33,14 +26,15 @@ class WasbPath(AnyUrl):
             if path:
                 _value = "{}/{}".format(_value, path)
             value = _value
-        cls._validate(value)
-        return super(WasbPath, cls).validate(value=value, field=field, config=config)
+        cls.get_structured_value(value)
+        return value
 
     def to_param(self):
         return str(self)
 
     @staticmethod
-    def _validate(value):
+    def get_structured_value(value):
+        value = str(value)
         try:
             parsed_url = urlparse(value)
         except Exception as e:
@@ -80,12 +74,8 @@ class WasbPath(AnyUrl):
             container=container, storage_account=storage_account, path=path.strip("/")
         )
 
-    @property
-    def structured(self):
-        return self._validate(self.to_param())
-
-    def get_container_path(self):
-        structured = self.structured
+    def get_container_path(self) -> str:
+        structured = self.get_structured_value(self)
         if structured.get("path"):
             return f"{structured['container']}/{structured['path']}"
         return structured["container"]

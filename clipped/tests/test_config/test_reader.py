@@ -3,7 +3,7 @@ import os
 from unittest import TestCase
 
 from clipped import types
-from clipped.compact.pydantic import StrictInt, StrictStr
+from clipped.compact.pydantic import PYDANTIC_VERSION, StrictInt, StrictStr
 from clipped.config.exceptions import SchemaError
 from clipped.config.reader import ConfigReader
 from clipped.types.lists import ListStr
@@ -133,14 +133,22 @@ class TestConfigReader(TestCase):
         with self.assertRaises(SchemaError):
             self.config.get("int_error_key_2", key_type="int")
 
-        value = self.config.get(key="float_key_1", key_type="int")
-        assert value == 1
+        if PYDANTIC_VERSION.startswith("2."):
+            with self.assertRaises(SchemaError):
+                self.config.get(key="float_key_1", key_type="int")
+        else:
+            value = self.config.get(key="float_key_1", key_type="int")
+            assert value == 1
 
         with self.assertRaises(SchemaError):
             self.config.get(key="float_key_1", key_type=StrictInt)
 
-        value = self.config.get(key="float_key_2", key_type="int")
-        assert value == 1
+        if PYDANTIC_VERSION.startswith("2."):
+            with self.assertRaises(SchemaError):
+                self.config.get(key="float_key_2", key_type="int")
+        else:
+            value = self.config.get(key="float_key_2", key_type="int")
+            assert value == 1
 
         with self.assertRaises(SchemaError):
             self.config.get(key="float_key_2", key_type=StrictInt)
@@ -464,21 +472,21 @@ class TestConfigReader(TestCase):
 
     def test_get_uri(self):
         value = self.config.get("uri_key_1", types.URI)
-        self.assertEqual(value, "https://user:pass@siteweb.ca")
+        self.assertEqual(str(value), "https://user:pass@siteweb.ca/")
 
         value = self.config.get("uri_key_2", types.URI)
-        self.assertEqual(value, "http://user2:pass@localhost:8080")
+        self.assertEqual(str(value), "http://user2:pass@localhost:8080/")
 
         value = self.config.get("uri_key_3", types.URI)
-        self.assertEqual(value, "https://user2:pass@quay.io")
+        self.assertEqual(str(value), "https://user2:pass@quay.io/")
 
         value = self.config.get("uri_list_key_1", types.URI, is_list=True)
         self.assertEqual(
-            value,
+            [str(v) for v in value],
             [
-                "https://user:pass@siteweb.ca",
-                "http://user2:pass@localhost:8080",
-                "https://user2:pass@quay.io",
+                "https://user:pass@siteweb.ca/",
+                "http://user2:pass@localhost:8080/",
+                "https://user2:pass@quay.io/",
             ],
         )
 

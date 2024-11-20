@@ -2,7 +2,7 @@ import re
 
 from typing import TYPE_CHECKING
 
-from clipped.compact.pydantic import StrictStr, strict_str_validator
+from clipped.compact.pydantic import PYDANTIC_VERSION, StrictStr, strict_str_validator
 
 if TYPE_CHECKING:
     from clipped.compact.pydantic import CallableGenerator
@@ -30,10 +30,30 @@ class EmailStr(StrictStr):
 
     ERROR_MESSAGE = "Not a valid email address."
 
-    @classmethod
-    def __get_validators__(cls) -> "CallableGenerator":
-        yield strict_str_validator
-        yield cls.validate
+    if PYDANTIC_VERSION.startswith("2."):
+        from pydantic_core import core_schema
+
+        @classmethod
+        def __get_pydantic_core_schema__(
+            cls, *args, **kwargs
+        ) -> core_schema.CoreSchema:
+            from pydantic_core import core_schema
+
+            def _validate(value):
+                value = strict_str_validator(value)
+                return cls.validate(value)
+
+            return core_schema.no_info_after_validator_function(
+                _validate,
+                core_schema.str_schema(strict=True),
+            )
+
+    else:
+
+        @classmethod
+        def __get_validators__(cls) -> "CallableGenerator":
+            yield strict_str_validator
+            yield cls.validate
 
     @classmethod
     def validate(cls, value, **kwargs):

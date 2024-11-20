@@ -4,42 +4,68 @@ import pprint
 import yaml
 
 from collections.abc import Mapping
-from typing import Any, Callable, Dict, List, Optional, Set, Type, Union
+from typing import Any, ClassVar, Dict, List, Optional, Set, Type, Union
 
-from clipped.compact.pydantic import BaseModel, Extra, create_model
+from clipped.compact.pydantic import BaseModel, PydanticAllowConfig, PydanticConfig
+from clipped.compact.pydantic import RootModel as BaseRootModel
+from clipped.compact.pydantic import create_model
 from clipped.config.exceptions import SchemaError
 from clipped.config.patch_strategy import PatchStrategy
 from clipped.config.spec import ConfigSpec
 from clipped.utils.dicts import deep_update
 from clipped.utils.humanize import humanize_timesince
-from clipped.utils.json import orjson_dumps, orjson_loads
+from clipped.utils.json import orjson_dumps
 from clipped.utils.strings import to_camel_case
 from clipped.utils.units import to_percentage, to_unit_memory
 
 
-class BaseSchemaModel(BaseModel):
-    _IDENTIFIER: Optional[str] = None
-    _DEFAULT_INCLUDE_ATTRIBUTES = []
-    _DEFAULT_EXCLUDE_ATTRIBUTES = []
-    _DATETIME_ATTRIBUTES = []
-    _MEM_SIZE_ATTRIBUTES = []
-    _PERCENT_ATTRIBUTES = []
-    _ROUNDING = 2
-    _WRITE_MODE = 0o777
-    _FIELDS_MANUAL_PATCH = []
-    _FIELDS_SAME_KIND_PATCH = []
-    _SWAGGER_FIELDS = []
-    _SWAGGER_FIELDS_LISTS = ["tolerations"]
-    _PARTIAL = False
-    _VERSION = None
-    _CONFIG_SPEC = ConfigSpec
-    _SCHEMA_EXCEPTION = SchemaError
-    _USE_DISCRIMINATOR = False
+class BaseSchemaMixin:
+    _IDENTIFIER: ClassVar[str] = None
+    _DEFAULT_INCLUDE_ATTRIBUTES: ClassVar = []
+    _DEFAULT_EXCLUDE_ATTRIBUTES: ClassVar = []
+    _DATETIME_ATTRIBUTES: ClassVar = []
+    _MEM_SIZE_ATTRIBUTES: ClassVar = []
+    _PERCENT_ATTRIBUTES: ClassVar = []
+    _ROUNDING: ClassVar = 2
+    _WRITE_MODE: ClassVar = 0o777
+    _FIELDS_MANUAL_PATCH: ClassVar = []
+    _FIELDS_SAME_KIND_PATCH: ClassVar = []
+    _CUSTOM_DUMP_FIELDS: ClassVar = []
+    _SWAGGER_FIELDS: ClassVar = []
+    _SWAGGER_FIELDS_LISTS: ClassVar = ["tolerations"]
+    _PARTIAL: ClassVar = False
+    _VERSION: ClassVar = None
+    _CONFIG_SPEC: ClassVar = ConfigSpec
+    _SCHEMA_EXCEPTION: ClassVar = SchemaError
+    _USE_DISCRIMINATOR: ClassVar = False
 
-    def __init__(self, **data):
-        if self._USE_DISCRIMINATOR:
-            data["kind"] = data.pop("kind", self._IDENTIFIER)
-        super().__init__(**data)
+    @classmethod
+    def get_aliases(cls):
+        return {
+            field_name: field_info.alias
+            for field_name, field_info in cls.__fields__.items()
+        }
+
+    @classmethod
+    def get_field_name(cls, field):
+        return field.alias if hasattr(field, "alias") else field.field_name
+
+    @classmethod
+    def get_alias_for_field(cls, field):
+        key = cls.get_field_name(field)
+        return cls.get_aliases().get(key)
+
+    @classmethod
+    def get_value_for_key(cls, key, obj):
+        if isinstance(obj, dict):
+            return obj.get(key)
+        return getattr(obj, key, None)
+
+    @classmethod
+    def get_data_from_values(cls, values):
+        if hasattr(values, "data"):  # Pydantic v2
+            return values.data
+        return values
 
     @classmethod
     def get_identifier(cls):
@@ -95,8 +121,7 @@ class BaseSchemaModel(BaseModel):
         exclude_none: bool = True,
         exclude_defaults: bool = False,
     ):
-        obj = self.obj_to_dict(
-            self,
+        obj = self.to_dict(
             humanize_values=humanize_values,
             include_kind=include_kind,
             include_version=include_version,
@@ -111,19 +136,23 @@ class BaseSchemaModel(BaseModel):
         humanize_values: bool = False,
         include_kind: bool = False,
         include_version: bool = False,
+        exclude_unset: bool = True,
+        exclude_none: bool = True,
+        exclude_defaults: bool = False,
     ) -> str:
-        if include_kind and "kind" in self.__fields__.keys():
-            self.kind = self._IDENTIFIER
-
-        if include_version and "version" in self.__fields__.keys():
-            self.version = self._VERSION
-        return self.obj_to_json(
-            self,
+        obj = self.to_dict(
             humanize_values=humanize_values,
+            include_kind=include_kind,
+            include_version=include_version,
+            exclude_unset=exclude_unset,
+            exclude_none=exclude_none,
+            exclude_defaults=exclude_defaults,
         )
+        return orjson_dumps(obj)
 
     def to_str(self) -> str:
-        return pprint.pformat(self.dict(by_alias=True))
+        model_dump_fct = self.model_dump if hasattr(self, "model_dump") else self.dict
+        return pprint.pformat(model_dump_fct(by_alias=True))
 
     def to_schema(self) -> Dict:
         return self.obj_to_schema(self)
@@ -138,22 +167,6 @@ class BaseSchemaModel(BaseModel):
         for attr in cls._MEM_SIZE_ATTRIBUTES:
             humanized_attrs[attr] = to_unit_memory(getattr(obj, attr))
         return humanized_attrs
-
-    @classmethod
-    def obj_to_json(
-        cls,
-        obj,
-        humanize_values: bool = False,
-        exclude_unset: bool = True,
-        exclude_none: bool = True,
-        exclude_defaults: bool = False,
-    ) -> str:
-        return obj.json(
-            by_alias=True,
-            exclude_unset=exclude_unset,
-            exclude_defaults=exclude_defaults,
-            exclude_none=exclude_none,
-        )
 
     @staticmethod
     def swagger_to_dict(fdata: Any) -> Union[Dict, List[Dict]]:
@@ -174,8 +187,7 @@ class BaseSchemaModel(BaseModel):
         else:
             return _field_to_dict(fdata)
 
-    def dict(self, *args, **kwargs) -> Dict:
-        data = super().dict(*args, **kwargs)
+    def _dump_obj(self, data: Dict) -> Dict:
         # Handle swagger fields and perform `to_dict`
         for field in self._SWAGGER_FIELDS:
             if field in data:
@@ -194,15 +206,32 @@ class BaseSchemaModel(BaseModel):
         exclude_defaults: bool = False,
     ) -> Dict:
         humanized_attrs = cls.humanize_attrs(obj) if humanize_values else {}
-        data_dict = obj.dict(
+        model_dump_fct = obj.model_dump if hasattr(obj, "model_dump") else obj.dict
+        data_dict = model_dump_fct(
             by_alias=True,
             exclude_unset=exclude_unset,
             exclude_defaults=exclude_defaults,
             exclude_none=exclude_none,
         )
+        # Handle custom fields
+        for field in cls._CUSTOM_DUMP_FIELDS:
+            _field = getattr(obj, field, None)
+            if _field:
+                if isinstance(_field, list):
+                    data_dict.update({field: [f.obj_to_dict(f) for f in _field]})
+                elif isinstance(_field, Mapping):
+                    data_dict.update(
+                        {field: {k: v.obj_to_dict(v) for k, v in _field.items()}}
+                    )
+                else:
+                    data_dict.update({field: _field.obj_to_dict(_field)})
 
         if include_kind and "kind" not in data_dict and hasattr(obj, "kind"):
-            data_dict["kind"] = obj._IDENTIFIER
+            data_dict["kind"] = (
+                obj._IDENTIFIER.value
+                if hasattr(obj._IDENTIFIER, "value")
+                else obj._IDENTIFIER
+            )
 
         if include_version and "version" not in data_dict:
             data_dict["version"] = cls._VERSION
@@ -217,7 +246,10 @@ class BaseSchemaModel(BaseModel):
 
     @classmethod
     def from_dict(cls, value: Any, partial: bool = False) -> "BaseSchemaModel":
-        return cls.parse_obj(value)
+        model_validate_fct = (
+            cls.model_validate if hasattr(cls, "model_validate") else cls.parse_obj
+        )
+        return model_validate_fct(value)
 
     @classmethod
     def read(
@@ -414,19 +446,19 @@ class BaseSchemaModel(BaseModel):
         all_aliases = {value for key, value in keys_and_aliases.items()}
         return all_keys | all_aliases
 
-    class Config:
-        allow_population_by_field_name = True
-        validate_assignment = True
-        arbitrary_types_allowed = True
-        use_enum_values = True
-        extra = Extra.forbid
-        json_dumps: Callable[..., str] = orjson_dumps
-        json_loads = orjson_loads
+
+class BaseSchemaModel(BaseModel, BaseSchemaMixin):
+    class Config(PydanticConfig):
+        pass
+
+
+class RootModel(BaseRootModel, BaseSchemaMixin):
+    pass
 
 
 class BaseAllowSchemaModel(BaseSchemaModel):
-    class Config(BaseSchemaModel.Config):
-        extra = Extra.allow
+    class Config(PydanticAllowConfig):
+        pass
 
 
 def base_schema(cls, new_cls: Type[BaseSchemaModel]):
@@ -452,15 +484,16 @@ def base_schema(cls, new_cls: Type[BaseSchemaModel]):
 
 def to_partial(cls):
     class NewCls(cls):
-        _PARTIAL = True
+        _PARTIAL: ClassVar = True
 
     NewCls.__name__ = f"Partial{cls.__name__}"
 
-    for field in NewCls.__fields__.values():
-        if hasattr(field.type_, "__base__") and issubclass(
-            field.type_.__base__, BaseModel
-        ):
-            field.type_ = to_partial(field.type_)
+    # import pdb; pdb.set_trace()
+    # for field in NewCls.model_fields.values():
+    #     if hasattr(field.type_, "__base__") and issubclass(
+    #         field.type_.__base__, BaseModel
+    #     ):
+    #         field.type_ = to_partial(field.type_)
 
     return NewCls
 
@@ -470,7 +503,7 @@ def skip_partial(f):
     `skip_partial` is a decorator to skip validation when `_PARTIAL = True` and return the data as is.
 
     usage example:
-        @root_validator
+        @model_validator(**validation_after)
         @skip_partial
         def my_custom_check(cls, values):
             ...

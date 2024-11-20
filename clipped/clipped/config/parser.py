@@ -7,10 +7,9 @@ from clipped.compact.pydantic import (
     Protocol,
     PydanticTypeError,
     PydanticValueError,
-    StrBytes,
     ValidationError,
-    _get_parsing_type,
     load_str_bytes,
+    parse_obj_as,
 )
 from clipped.config.constants import NO_VALUE_FOUND
 from clipped.config.exceptions import SchemaError
@@ -50,15 +49,13 @@ class ConfigParser:
     def parse_obj_as(
         cls, type_: Type[T], obj: Any, *, type_name: Optional[NameFactory] = None
     ) -> T:
-        model_type = _get_parsing_type(type_, type_name=type_name)
-        model_type.update_forward_refs(**cls.type_forwarding())
-        return model_type(__root__=obj).__root__
+        return parse_obj_as(type_, obj, **cls.type_forwarding())
 
     @classmethod
     def parse_raw_as(
         cls,
         type_: Type[T],
-        b: StrBytes,
+        b: Any,
         *,
         content_type: str = None,
         encoding: str = "utf8",
@@ -182,10 +179,11 @@ class ConfigParser:
                 return "Any"
 
             if is_list:
-                _target_type = (
-                    _target_type if isinstance(_target_type, str) else _get_name()
-                )
-                _target_type = f"List[{_target_type}]"
+                # _target_type = (
+                #     _target_type if isinstance(_target_type, str) else _get_name()
+                # )
+                # _target_type = f"List[{_target_type}]"
+                _target_type = List[_target_type]
 
             return cls._get_typed_value(
                 key=key,
