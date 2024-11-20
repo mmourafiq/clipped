@@ -6,7 +6,7 @@ from unittest import TestCase
 
 from dateutil.tz import tzutc
 
-from clipped.compact.pydantic import StrictInt, StrictStr
+from clipped.compact.pydantic import PYDANTIC_VERSION, StrictInt, StrictStr
 from clipped.config.constants import NO_VALUE_FOUND
 from clipped.config.exceptions import SchemaError
 from clipped.config.parser import ConfigParser
@@ -163,13 +163,17 @@ class TestConfigParser(TestCase):
         with self.assertRaises(SchemaError):
             get_int(key="int_error_key_2", value="")
 
-        value = get_int(key="k", value=12.1)
-        assert value == 12
+        if PYDANTIC_VERSION.startswith("2."):
+            with self.assertRaises(SchemaError):
+                get_int(key="k", value=12.1)
+        else:
+            value = get_int(key="float_error_key_1", value=12.1)
+            assert value == 12
         with self.assertRaises(SchemaError):
             get_strict_int(key="float_error_key_3", value=12.1)
 
-        value = get_int(key="k", value=12.1)
-        assert value == 12
+        with self.assertRaises(SchemaError):
+            get_strict_int(key="float_error_key_3", value="12.1")
         with self.assertRaises(SchemaError):
             get_strict_int(key="float_error_key_3", value="12.1")
 
@@ -188,14 +192,14 @@ class TestConfigParser(TestCase):
 
         value = get_int(
             key="int_list_error_key_2",
-            value=["123", 1.24, 125, "125"],
+            value=["123", 1.00, 125, "125"],
             is_list=True,
         )
         assert value == [123, 1, 125, 125]
         with self.assertRaises(SchemaError):
             get_strict_int(
                 key="int_list_error_key_2",
-                value=["123", 1.24, 125, "125"],
+                value=["123", 1.00, 125, "125"],
                 is_list=True,
             )
 
@@ -371,15 +375,27 @@ class TestConfigParser(TestCase):
         with self.assertRaises(SchemaError):
             get_string(key="string_error_key_1", value=None)
 
-        assert get_string(key="string_error_key_2", value=123) == "123"
+        if PYDANTIC_VERSION.startswith("2."):
+            with self.assertRaises(SchemaError):
+                get_string(key="string_error_key_1", value=123)
+        else:
+            assert get_string(key="string_error_key_2", value=123) == "123"
         with self.assertRaises(SchemaError):
             get_strict_string(key="string_error_key_2", value=123)
 
-        assert get_string(key="string_error_key_3", value=1.23) == "1.23"
+        if PYDANTIC_VERSION.startswith("2."):
+            with self.assertRaises(SchemaError):
+                get_string(key="string_error_key_3", value=1.23)
+        else:
+            assert get_string(key="string_error_key_3", value=1.23) == "1.23"
         with self.assertRaises(SchemaError):
             get_strict_string(key="string_error_key_3", value=1.23)
 
-        assert get_string(key="string_error_key_4", value=True) == "True"
+        if PYDANTIC_VERSION.startswith("2."):
+            with self.assertRaises(SchemaError):
+                get_string(key="string_error_key_4", value=True)
+        else:
+            assert get_string(key="string_error_key_4", value=True) == "True"
         with self.assertRaises(SchemaError):
             get_strict_string(key="string_error_key_4", value=True)
 
@@ -391,9 +407,15 @@ class TestConfigParser(TestCase):
                 value=["123", "1.23", "foo", ""],
             )
 
-        assert get_string(
-            key="string_list_error_key_1", value=["123", 123], is_list=True
-        ) == ["123", "123"]
+        if PYDANTIC_VERSION.startswith("2."):
+            with self.assertRaises(SchemaError):
+                get_string(
+                    key="string_list_error_key_1", value=["123", 123], is_list=True
+                )
+        else:
+            assert get_string(
+                key="string_list_error_key_1", value=["123", 123], is_list=True
+            ) == ["123", "123"]
         with self.assertRaises(SchemaError):
             get_strict_string(
                 key="string_list_error_key_1",
@@ -401,11 +423,17 @@ class TestConfigParser(TestCase):
                 is_list=True,
             )
 
-        assert get_string(
-            key="string_list_error_key_2",
-            value=["123", 12.3],
-            is_list=True,
-        ) == ["123", "12.3"]
+        if PYDANTIC_VERSION.startswith("2."):
+            with self.assertRaises(SchemaError):
+                get_string(
+                    key="string_list_error_key_2", value=["123", 12.3], is_list=True
+                )
+        else:
+            assert get_string(
+                key="string_list_error_key_2",
+                value=["123", 12.3],
+                is_list=True,
+            ) == ["123", "12.3"]
         with self.assertRaises(SchemaError):
             get_strict_string(
                 key="string_list_error_key_2",
@@ -426,11 +454,17 @@ class TestConfigParser(TestCase):
                 is_list=True,
             )
 
-        assert get_string(
-            key="string_list_error_key_4",
-            value=["123", False],
-            is_list=True,
-        ) == ["123", "False"]
+        if PYDANTIC_VERSION.startswith("2."):
+            with self.assertRaises(SchemaError):
+                get_string(
+                    key="string_list_error_key_4", value=["123", False], is_list=True
+                )
+        else:
+            assert get_string(
+                key="string_list_error_key_4",
+                value=["123", False],
+                is_list=True,
+            ) == ["123", "False"]
         with self.assertRaises(SchemaError):
             get_strict_string(
                 key="string_list_error_key_4",
@@ -608,38 +642,47 @@ class TestConfigParser(TestCase):
 
     def test_get_uri(self):
         get_uri = ConfigParser.parse(Uri)
-        value = get_uri(key="uri_key_1", value="https://user:pass@siteweb.ca")
-        assert str(value) == "https://user:pass@siteweb.ca"
-        assert value.user == "user"
+        value = get_uri(key="uri_key_1", value="https://user:pass@siteweb.ca/")
+        assert str(value) == "https://user:pass@siteweb.ca/"
+        if PYDANTIC_VERSION.startswith("2."):
+            assert value.username == "user"
+        else:
+            assert value.user == "user"
         assert value.password == "pass"
         assert value.host == "siteweb.ca"
-        assert value.host_port == "https://siteweb.ca"
+        if PYDANTIC_VERSION.startswith("2."):
+            assert value.host_port == "https://siteweb.ca:443"
+        else:
+            assert value.host_port == "https://siteweb.ca"
 
-        value = get_uri(key="uri_key_2", value="http://user2:pass@localhost:8080")
-        assert str(value) == "http://user2:pass@localhost:8080"
-        assert value.user == "user2"
+        value = get_uri(key="uri_key_2", value="http://user2:pass@localhost:8080/")
+        assert str(value) == "http://user2:pass@localhost:8080/"
+        if PYDANTIC_VERSION.startswith("2."):
+            assert value.username == "user2"
+        else:
+            assert value.user == "user2"
         assert value.password == "pass"
         assert value.host == "localhost"
         assert value.host_port == "http://localhost:8080"
 
-        value = get_uri(key="uri_key_3", value="https://user2:pass@quay.io")
-        assert str(value) == "https://user2:pass@quay.io"
+        value = get_uri(key="uri_key_3", value="https://user2:pass@quay.io/")
+        assert str(value) == "https://user2:pass@quay.io/"
 
         value = get_uri(
             key="uri_list_key_1",
             value=[
-                "https://user:pass@siteweb.ca",
-                "http://user2:pass@localhost:8080",
-                "https://user2:pass@quay.io",
+                "https://user:pass@siteweb.ca/",
+                "http://user2:pass@localhost:8080/",
+                "https://user2:pass@quay.io/",
             ],
             is_list=True,
         )
         self.assertEqual(
             [str(v) for v in value],
             [
-                "https://user:pass@siteweb.ca",
-                "http://user2:pass@localhost:8080",
-                "https://user2:pass@quay.io",
+                "https://user:pass@siteweb.ca/",
+                "http://user2:pass@localhost:8080/",
+                "https://user2:pass@quay.io/",
             ],
         )
 
@@ -822,7 +865,8 @@ class TestConfigParser(TestCase):
         wasbs_path = "wasbs://container@user.blob.core.windows.net/path"
         expected = parse_wasbs_path(key="path", value=wasbs_path)
         assert str(expected) == wasbs_path
-        assert expected.structured == dict(
+        structured = WasbPath.get_structured_value(wasbs_path)
+        assert structured == dict(
             container="container", storage_account="user", path="path"
         )
 
@@ -854,7 +898,9 @@ class TestConfigParser(TestCase):
         parse_gcs_path = ConfigParser.parse(GcsPath)
         expected = parse_gcs_path(key="path", value=gcs_path)
         assert str(expected) == gcs_path
-        assert expected.structured == dict(bucket="bucket", blob="path/to/blob")
+        assert GcsPath.get_structured_value(gcs_path) == dict(
+            bucket="bucket", blob="path/to/blob"
+        )
 
         # Wrong url
         gcs_path = "gs:/bucket/path/to/blob"
@@ -863,18 +909,22 @@ class TestConfigParser(TestCase):
 
         # Trailing slash
         gcs_path = "gs://bucket/path/to/blob/"
-        assert parse_gcs_path(key="path", value=gcs_path) == gcs_path
+        expected = parse_gcs_path(key="path", value=gcs_path)
+        assert str(expected) == gcs_path
 
         # Bucket only
         gcs_path = "gs://bucket/"
-        assert parse_gcs_path(key="path", value=gcs_path) == gcs_path
+        expected = parse_gcs_path(key="path", value=gcs_path)
+        assert str(expected) == gcs_path
 
     def test_parse_s3_path(self):
         s3_path = "s3://test/this/is/bad/key.txt"
         parse_s3_path = ConfigParser.parse(S3Path)
         expected = parse_s3_path(key="path", value=s3_path)
         assert str(expected) == s3_path
-        assert expected.structured == dict(bucket="test", key="this/is/bad/key.txt")
+        assert S3Path.get_structured_value(s3_path) == dict(
+            bucket="test", key="this/is/bad/key.txt"
+        )
 
     def test_parse_date(self):
         value = "2010-12-12"
@@ -920,8 +970,12 @@ class TestConfigParser(TestCase):
 
         # Dates are not validate by datetime
         value = "2010-12-12"
-        with self.assertRaises(SchemaError):
-            get_datetime(key="date_key", value=value)
+        if PYDANTIC_VERSION.startswith("2."):
+            value = get_datetime(key="date_key", value=value)
+            assert value == datetime.datetime(2010, 12, 12)
+        else:
+            with self.assertRaises(SchemaError):
+                get_datetime(key="date_key", value=value)
 
     def test_parse_uuid(self):
         value = uuid.uuid4()

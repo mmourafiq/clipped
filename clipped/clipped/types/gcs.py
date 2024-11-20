@@ -1,20 +1,14 @@
-from typing import TYPE_CHECKING, Any, Dict
+from typing import Any, Dict
+from urllib.parse import urlparse
 
-from clipped.compact.pydantic import AnyUrl
-
-if TYPE_CHECKING:
-    from clipped.compact.pydantic import BaseConfig, ModelField
+from clipped.types.base_url import BaseUrl
 
 
-class GcsPath(AnyUrl):
+class GcsPath(BaseUrl):
     allowed_schemes = {"gcs", "gs"}
 
-    __slots__ = ()
-
     @classmethod
-    def validate(
-        cls, value: Any, field: "ModelField", config: "BaseConfig"
-    ) -> "AnyUrl":
+    def _validate(cls, value: Any):
         if isinstance(value, Dict):
             _value = value.get("bucket")
             if not _value:
@@ -25,11 +19,27 @@ class GcsPath(AnyUrl):
             if blob:
                 _value = "{}/{}".format(_value, blob)
             value = _value
-        return super(GcsPath, cls).validate(value=value, field=field, config=config)
+        cls.get_structured_value(value)
+        return value
 
     def to_param(self):
         return str(self)
 
-    @property
-    def structured(self):
-        return dict(bucket=self.host, blob=self.path.strip("/"))
+    @staticmethod
+    def get_structured_value(value):
+        value = str(value)
+        try:
+            parsed_url = urlparse(value)
+        except Exception as e:
+            raise ValueError(f"Received a wrong URL definition: {e}")
+
+        if parsed_url.scheme not in {"gs", "gcs"}:
+            raise ValueError(f"Invalid scheme in GCS URL: {parsed_url.scheme}")
+
+        bucket = parsed_url.netloc
+        blob = parsed_url.path.strip("/")
+
+        if not bucket:
+            raise ValueError("GCS URL must include a bucket name.")
+
+        return dict(bucket=bucket, blob=blob)
