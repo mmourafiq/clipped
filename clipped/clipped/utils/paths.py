@@ -225,6 +225,8 @@ def check_dirname_exists(path: str, is_dir: bool = False, reraise: bool = True):
         if reraise:
             raise OSError(error)
         _logger.warning(error)
+        return False
+    return True
 
 
 def create_project_tmp(project_name: str) -> str:

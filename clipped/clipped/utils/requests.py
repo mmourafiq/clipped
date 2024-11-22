@@ -20,7 +20,9 @@ def create_session(
     if "stream" in session_attrs:
         session.stream = session_attrs.pop("stream")
     if "verify" in session_attrs or "verify_ssl" in session_attrs:
-        session.verify = session_attrs.pop("verify", session_attrs.pop("verify_ssl", True))
+        session.verify = session_attrs.pop(
+            "verify", session_attrs.pop("verify_ssl", True)
+        )
     if "cert" in session_attrs:
         session.cert = session_attrs.pop("cert")
     if "max_redirects" in session_attrs:
