@@ -1,5 +1,4 @@
-from typing import TYPE_CHECKING, Any
-from typing_extensions import Annotated
+from typing import TYPE_CHECKING, Any, Type
 
 from clipped.compact.pydantic import PYDANTIC_VERSION, AnyUrl
 
@@ -12,29 +11,39 @@ class BaseUrl(AnyUrl):
     __slots__ = ()
 
     if PYDANTIC_VERSION.startswith("2."):
+        from pydantic import GetCoreSchemaHandler
         from pydantic_core import core_schema
 
         @classmethod
         def __get_pydantic_core_schema__(
-            cls, source_type, handler
+            cls, source: Type["BaseUrl"], handler: GetCoreSchemaHandler
         ) -> core_schema.CoreSchema:
-            from pydantic import UrlConstraints
             from pydantic_core import core_schema
 
-            # Get the core schema for AnyUrl
-            URLType = Annotated[
-                AnyUrl, UrlConstraints(allowed_schemes=cls.allowed_schemes)
-            ]
-            schema = handler(URLType)
+            def wrap_val(v, h):
+                if isinstance(v, source):
+                    return v
+                if isinstance(v, BaseUrl):
+                    v = str(v)
+                core_url = h(v)
+                try:
+                    instance = source.__new__(source)
+                    instance._url = core_url
+                except Exception as _:
+                    instance = source(v)
+                cls._validate(instance)
+                return instance
 
-            # Define a validator that processes the value and returns an instance of Uri
-            def validator(value, info):
-                value = cls._validate(value)
-                if not isinstance(value, cls):
-                    value = cls(value)
-                return value
-
-            return core_schema.with_info_after_validator_function(validator, schema)
+            urls_schema = {}
+            if cls.allowed_schemes:
+                urls_schema = {"allowed_schemes": cls.allowed_schemes}
+            if hasattr(cls, "_constraints"):
+                urls_schema.update(**cls._constraints.defined_constraints)
+            return core_schema.no_info_wrap_validator_function(
+                wrap_val,
+                schema=core_schema.url_schema(**urls_schema),
+                serialization=core_schema.to_string_ser_schema(),
+            )
 
     @classmethod
     def validate(

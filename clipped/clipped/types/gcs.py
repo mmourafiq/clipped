@@ -27,7 +27,8 @@ class GcsPath(BaseUrl):
 
     @staticmethod
     def get_structured_value(value):
-        value = str(value)
+        if not isinstance(value, str):
+            value = str(value)
         try:
             parsed_url = urlparse(value)
         except Exception as e:

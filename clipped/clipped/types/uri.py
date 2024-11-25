@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Dict
+from typing import TYPE_CHECKING, Any, Dict, Type
 
 from clipped.compact.pydantic import PYDANTIC_VERSION, AnyUrl
 
@@ -10,28 +10,36 @@ class Uri(AnyUrl):
     __slots__ = ()
 
     if PYDANTIC_VERSION.startswith("2."):
+        from pydantic import GetCoreSchemaHandler
         from pydantic_core import core_schema
 
         @classmethod
         def __get_pydantic_core_schema__(
-            cls, source_type, handler
+            cls, source: Type["Uri"], handler: GetCoreSchemaHandler
         ) -> core_schema.CoreSchema:
             from pydantic_core import core_schema
 
-            # Get the core schema for AnyUrl
-            schema = handler(AnyUrl)
+            def wrap_val(v, h):
+                if isinstance(v, source):
+                    return v
+                if isinstance(v, Uri):
+                    v = str(v)
+                core_url = h(v)
+                try:
+                    instance = source.__new__(source)
+                    instance._url = core_url
+                except Exception as _:
+                    instance = source(v)
+                cls._validate(instance)
+                return instance
 
-            # Define a validator that processes the value and returns an instance of Uri
-            def validator(value, info):
-                value = cls._validate(value)
-                if not isinstance(value, cls):
-                    value = cls(value)
-                return value
-
-            # Wrap the AnyUrl schema with your validator
-            return core_schema.with_info_after_validator_function(
-                validator,
-                schema,
+            urls_schema = {}
+            if hasattr(cls, "_constraints"):
+                urls_schema.update(**cls._constraints.defined_constraints)
+            return core_schema.no_info_wrap_validator_function(
+                wrap_val,
+                schema=core_schema.url_schema(**urls_schema),
+                serialization=core_schema.to_string_ser_schema(),
             )
 
     @classmethod
