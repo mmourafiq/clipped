@@ -63,6 +63,7 @@ if PYDANTIC_VERSION.startswith("2."):
         use_enum_values = True
         extra = "forbid"
         ser_json_timedelta = "float"
+        protected_namespaces = ()
 
     class PydanticAllowConfig(PydanticConfig):
         extra = "allow"
