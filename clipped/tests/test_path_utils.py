@@ -2,11 +2,13 @@ import os
 import tarfile
 import tempfile
 
+from datetime import datetime, timedelta
 from unittest import TestCase
 
 from clipped.utils.paths import (
     append_basename,
     create_tarfile_from_path,
+    delete_old_files,
     get_files_by_paths,
     get_files_in_path_context,
 )
@@ -72,3 +74,57 @@ class TestFiles(TestCase):
         ) as files:
             assert len(files) == 3
             assert set(files) == {fpath1, fpath2, fpath3}
+
+    def test_delete_files_older_than(self):
+        dirname = tempfile.mkdtemp()
+        fpath1 = dirname + "/test1.txt"
+        with open(fpath1, "w") as f:
+            f.write("data1")
+        os.utime(
+            fpath1,
+            (
+                (datetime.now() - timedelta(hours=5)).timestamp(),
+                (datetime.now() - timedelta(hours=5)).timestamp(),
+            ),
+        )
+
+        fpath2 = dirname + "/test2.txt"
+        with open(fpath2, "w") as f:
+            f.write("data2")
+        os.utime(
+            fpath2,
+            (
+                (datetime.now() - timedelta(hours=1)).timestamp(),
+                (datetime.now() - timedelta(hours=1)).timestamp(),
+            ),
+        )
+
+        deleted_count, deleted_files = delete_old_files(dirname, 2)
+        assert deleted_count == 1
+        assert fpath1 in deleted_files
+        assert not os.path.exists(fpath1)
+        assert os.path.exists(fpath2)
+
+    def test_delete_files_older_than_empty_dir(self):
+        dirname = tempfile.mkdtemp()
+        deleted_count, deleted_files = delete_old_files(dirname, 2)
+        assert deleted_count == 0
+        assert deleted_files == []
+
+    def test_delete_files_older_than_no_deletion(self):
+        dirname = tempfile.mkdtemp()
+        fpath1 = dirname + "/test1.txt"
+        with open(fpath1, "w") as f:
+            f.write("data1")
+        os.utime(
+            fpath1,
+            (
+                (datetime.now() - timedelta(hours=1)).timestamp(),
+                (datetime.now() - timedelta(hours=1)).timestamp(),
+            ),
+        )
+
+        deleted_count, deleted_files = delete_old_files(dirname, 2)
+        assert deleted_count == 0
+        assert deleted_files == []
+        assert os.path.exists(fpath1)

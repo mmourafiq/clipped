@@ -5,6 +5,7 @@ import tarfile
 import tempfile
 
 from contextlib import contextmanager
+from datetime import datetime, timedelta
 from typing import Any, List, Optional, Pattern, Tuple, Union
 
 from clipped.utils.lists import to_list
@@ -127,6 +128,39 @@ def get_dirs_under_path(path: str) -> List[str]:
     return [
         name for name in os.listdir(path) if os.path.isdir(os.path.join(path, name))
     ]
+
+
+def delete_old_files(path: str, hours: Optional[float] = 24) -> Tuple[int, List[str]]:
+    """
+    Delete files older than specified hours in the given directory and its subdirectories.
+
+    Args:
+        path (str): Directory path to start searching from
+        hours (float): Number of hours, files older than this will be deleted
+
+    Returns:
+        tuple[int, list[str]]: Count of deleted files and list of deleted file paths
+    """
+    deleted_count = 0
+    deleted_files = []
+    current_time = datetime.now()
+    cutoff_time = current_time - timedelta(hours=hours)
+
+    files = get_files_in_path(path)
+    for file_path in files:
+        try:
+            # Get the last modified time of the file
+            file_time = datetime.fromtimestamp(os.path.getmtime(file_path))
+
+            # Check if file is older than cutoff time
+            if file_time < cutoff_time:
+                os.remove(file_path)
+                deleted_count += 1
+                deleted_files.append(file_path)
+        except (OSError, PermissionError) as e:
+            _logger.debug(f"Error deleting old file {file_path}: {e}")
+
+    return deleted_count, deleted_files
 
 
 @contextmanager
