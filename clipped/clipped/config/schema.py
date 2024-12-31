@@ -43,7 +43,7 @@ class BaseSchemaMixin:
     def get_aliases(cls):
         return {
             field_name: field_info.alias
-            for field_name, field_info in cls.__fields__.items()
+            for field_name, field_info in cls.model_fields.items()
         }
 
     @classmethod
@@ -353,7 +353,7 @@ class BaseSchemaMixin:
     ):
         strategy = strategy or PatchStrategy.POST_MERGE
 
-        for key in config.__fields__.keys():
+        for key in config.model_fields.keys():
             if key in cls._FIELDS_MANUAL_PATCH:
                 continue
 
@@ -363,7 +363,8 @@ class BaseSchemaMixin:
                 if isinstance(values, Mapping) and key in values:
                     should_continue = False
                 elif (
-                    isinstance(values, BaseSchemaModel) and key in values.__fields_set__
+                    isinstance(values, BaseSchemaModel)
+                    and key in values.model_fields_set
                 ):
                     should_continue = False
 
@@ -437,7 +438,7 @@ class BaseSchemaMixin:
 
     @classmethod
     def get_keys_and_aliases(cls) -> Dict[str, str]:
-        return {key: field.alias for key, field in cls.__fields__.items()}
+        return {key: field.alias for key, field in cls.model_fields.items()}
 
     @classmethod
     def get_all_possible_keys(cls) -> Set[str]:

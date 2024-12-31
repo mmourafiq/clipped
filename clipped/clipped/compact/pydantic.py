@@ -200,6 +200,10 @@ else:
         def model_fields(self):
             return self.__fields__
 
+        @property
+        def model_fields_set(self):
+            self.__fields_set__
+
         @classmethod
         def model_construct(cls, *args, **data):
             return cls.construct(*args, **data)
