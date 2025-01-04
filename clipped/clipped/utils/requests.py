@@ -75,7 +75,7 @@ def safe_request(
         allow_redirects=allow_redirects,
         timeout=timeout,
         verify=verify_ssl,
-        **kwargs
+        **kwargs,
     )
 
     return response

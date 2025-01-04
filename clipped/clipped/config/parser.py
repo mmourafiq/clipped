@@ -129,8 +129,9 @@ class ConfigParser:
             PydanticValueError,
         ):
             raise cls._SCHEMA_EXCEPTION(
-                "Cannot convert value `{}` (key: `{}`) "
-                "to `{}`".format(value, key, target_type)
+                "Cannot convert value `{}` (key: `{}`) to `{}`".format(
+                    value, key, target_type
+                )
             )
 
     @classmethod

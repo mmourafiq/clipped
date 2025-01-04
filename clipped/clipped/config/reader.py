@@ -15,9 +15,7 @@ class ConfigReader:
 
     @classmethod
     def read_configs(cls, config_values):  # pylint:disable=redefined-outer-name
-        config = cls._CONFIG_SPEC.read_from(
-            config_values
-        )  # pylint:disable=redefined-outer-name
+        config = cls._CONFIG_SPEC.read_from(config_values)  # pylint:disable=redefined-outer-name
         return cls(**config) if config else None
 
     def keys_startswith(self, term):

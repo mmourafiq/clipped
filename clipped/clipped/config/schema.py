@@ -519,7 +519,7 @@ def skip_partial(f):
             cls_arg = args[0]
             if len(args) > 1:
                 v_args = args[1]
-        partial_property = getattr(cls_arg, f"_PARTIAL", None)
+        partial_property = getattr(cls_arg, "_PARTIAL", None)
         if partial_property:
             return v_args
         return f(*args, **kwargs)

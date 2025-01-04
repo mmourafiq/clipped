@@ -5,9 +5,9 @@ from urllib.parse import parse_qs
 
 
 def get_meta_response(response: Any):
-    def get_pagination(url: str):
+    def get_pagination(url: str) -> str:
         parsed = urlparse.urlparse(url)
-        parsed_query = parse_qs(parsed.query)  # type: Dict
+        parsed_query: Dict[str, list] = parse_qs(parsed.query)
         limit = parsed_query.get("limit")
         offset = parsed_query.get("offset")
         res = []

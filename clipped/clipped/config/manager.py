@@ -248,9 +248,7 @@ class ConfigManager:
     @classmethod
     def get_config_or_default(cls) -> Any:
         if not cls.is_initialized():
-            return cls.CONFIG(
-                **cls.get_config_defaults()
-            )  # pylint:disable=not-callable
+            return cls.CONFIG(**cls.get_config_defaults())  # pylint:disable=not-callable
 
         return cls.get_config(check=False)
 

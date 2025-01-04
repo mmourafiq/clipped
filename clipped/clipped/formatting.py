@@ -135,7 +135,7 @@ class Printer:
         text: str,
         sys_exit: bool = False,
         command_help: Optional[str] = None,
-        **kwargs
+        **kwargs,
     ):
         cls.console.print(text, style="error")
         if command_help:
