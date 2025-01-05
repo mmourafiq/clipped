@@ -334,7 +334,7 @@ class TestConfigParser(TestCase):
                 value="null",
                 is_list=True,
                 is_optional=True,
-            ),
+            )
 
         self.assertEqual(
             get_float(

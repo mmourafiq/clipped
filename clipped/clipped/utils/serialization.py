@@ -1,3 +1,4 @@
+# ruff: noqa: E731
 from typing import Any
 
 from clipped.compact.pydantic import (
