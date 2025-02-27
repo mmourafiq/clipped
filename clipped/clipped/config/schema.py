@@ -30,9 +30,10 @@ class BaseSchemaMixin:
     _WRITE_MODE: ClassVar = 0o777
     _FIELDS_MANUAL_PATCH: ClassVar = []
     _FIELDS_SAME_KIND_PATCH: ClassVar = []
+    _FIELDS_DICT_PATCH: ClassVar = []
     _CUSTOM_DUMP_FIELDS: ClassVar = []
     _SWAGGER_FIELDS: ClassVar = []
-    _SWAGGER_FIELDS_LISTS: ClassVar = ["tolerations"]
+    _SWAGGER_FIELDS_LISTS: ClassVar = ["tolerations", "host_aliases", "hostAliases"]
     _PARTIAL: ClassVar = False
     _VERSION: ClassVar = None
     _CONFIG_SPEC: ClassVar = ConfigSpec
@@ -385,6 +386,10 @@ class BaseSchemaMixin:
                 current_value.patch(value, strategy=strategy)
                 continue
 
+            if isinstance(current_value, Mapping) and key in cls._FIELDS_DICT_PATCH:
+                for k, v in current_value.items():
+                    v.patch(value.get(k, {}), strategy=strategy)
+                continue
             if not isinstance(current_value, BaseSchemaModel) and (
                 hasattr(current_value, "openapi_types") or key in cls._SWAGGER_FIELDS
             ):
