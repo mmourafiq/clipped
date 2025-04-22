@@ -5,7 +5,7 @@ from clipped.types.base_url import BaseUrl
 
 
 class S3Path(BaseUrl):
-    allowed_schemes = {"s3"}
+    allowed_schemes = ["s3"]
 
     @classmethod
     def _validate(cls, value: Any):

@@ -7,7 +7,7 @@ from clipped.types.base_url import BaseUrl
 
 
 class WasbPath(BaseUrl):
-    allowed_schemes = {"https", "wasb", "wasbs", "https", "az", "abfs"}
+    allowed_schemes = ["https", "wasb", "wasbs", "https", "az", "abfs"]
 
     @classmethod
     def _validate(cls, value: Any):

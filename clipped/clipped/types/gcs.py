@@ -5,7 +5,7 @@ from clipped.types.base_url import BaseUrl
 
 
 class GcsPath(BaseUrl):
-    allowed_schemes = {"gcs", "gs"}
+    allowed_schemes = ["gcs", "gs"]
 
     @classmethod
     def _validate(cls, value: Any):
