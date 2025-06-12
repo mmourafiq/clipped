@@ -5,7 +5,7 @@ import platform
 import socket
 import sys
 
-from typing import List
+from typing import List, Tuple
 
 _logger = logging.getLogger("clipped.utils.env")
 
@@ -40,19 +40,46 @@ def get_user():
         return "unknown"
 
 
-def get_run_env(packages: List[str]):
-    import pkg_resources
-
-    def get_packages():
+def get_py_packages(packages: List[str]) -> Tuple[List[Tuple[str, str]], dict]:
+    def get_from_importlib_metadata():
         try:
-            installed_packages = [d for d in pkg_resources.working_set]  # noqa
-            return sorted(
-                ["{}=={}".format(pkg.key, pkg.version) for pkg in installed_packages]
-            )
-        except Exception as e:
-            _logger.debug("Could not detect installed packages, %s", e)
-            return []
+            import importlib.metadata as importlib_metadata
 
+            return {
+                package.name.lower(): package.version
+                for package in importlib_metadata.distributions()
+            }
+        except ImportError:
+            return None
+
+    def get_from_pkg_resources():
+        try:
+            import pkg_resources
+
+            return {
+                package.key: package.version for package in pkg_resources.working_set
+            }
+        except ImportError:
+            return None
+
+    results = get_from_pkg_resources()
+    if not results:
+        results = get_from_importlib_metadata()
+
+    packages_results = {}
+    if packages:
+        packages_results = {
+            name.lower(): version
+            for name, version in results.items()
+            if name.lower() in packages
+        }
+
+    sorted_results = sorted(results.items())
+    return sorted_results, packages_results
+
+
+def get_run_env(packages: List[str]):
+    py_packages, packages_results = get_py_packages(packages)
     data = {
         "pid": os.getpid(),
         "hostname": socket.gethostname(),
@@ -65,13 +92,9 @@ def get_run_env(packages: List[str]):
         "is_notebook": is_notebook(),
         "filename": get_filename(),
         "module_path": get_module_path(),
-        "packages": get_packages(),
+        "packages": py_packages,
     }
 
-    for package in packages:
-        try:
-            data[f"{package}_version"] = pkg_resources.get_distribution(package).version
-        except pkg_resources.DistributionNotFound:
-            data[f"{package}_version"] = ""
-
+    for package in packages_results:
+        data[f"{package}_version"] = packages_results[package]
     return data
